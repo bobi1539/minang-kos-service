@@ -8,6 +8,7 @@ import (
 	"minang-kos-service/service"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/julienschmidt/httprouter"
@@ -15,8 +16,9 @@ import (
 
 func main() {
 	db := app.NewDB()
+	validate := validator.New()
 	countryRepository := repository.NewCountryRepository()
-	countryService := service.NewCountryService(countryRepository, db)
+	countryService := service.NewCountryService(countryRepository, db, validate)
 	countryController := controller.NewCountryController(countryService)
 
 	router := httprouter.New()

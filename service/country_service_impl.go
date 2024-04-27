@@ -8,26 +8,33 @@ import (
 	"minang-kos-service/model/web/request"
 	"minang-kos-service/repository"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type CountryServiceImpl struct {
 	CountryRepository repository.CountryRepository
 	DB                *sql.DB
+	Validate          *validator.Validate
 }
 
-func NewCountryService(countryRepository repository.CountryRepository, DB *sql.DB) CountryService {
+func NewCountryService(countryRepository repository.CountryRepository, DB *sql.DB, validate *validator.Validate) CountryService {
 	return &CountryServiceImpl{
 		CountryRepository: countryRepository,
 		DB:                DB,
+		Validate:          validate,
 	}
 }
 
 func (service *CountryServiceImpl) Create(ctx context.Context, webRequest any) any {
+	countryRequest := webRequest.(request.CountryCreateRequest)
+	err := service.Validate.Struct(countryRequest)
+	helper.PanicIfError(err)
+
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	countryRequest := webRequest.(request.CountryCreateRequest)
 	country := domain.Country{
 		Name: countryRequest.Name,
 		BaseDomain: domain.BaseDomain{
