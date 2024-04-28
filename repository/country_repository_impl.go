@@ -62,7 +62,7 @@ func (repository *CountryRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 	country := domain.Country{}
 
 	if rows.Next() {
-		scanCountry(rows, country)
+		scanCountry(rows, &country)
 		return country, nil
 	}
 	return country, errors.New(constant.DATA_NOT_FOUND)
@@ -126,13 +126,13 @@ func getCountries(rows *sql.Rows) []domain.Country {
 	var countries []domain.Country
 	for rows.Next() {
 		country := domain.Country{}
-		scanCountry(rows, country)
+		scanCountry(rows, &country)
 		countries = append(countries, country)
 	}
 	return countries
 }
 
-func scanCountry(rows *sql.Rows, country domain.Country) {
+func scanCountry(rows *sql.Rows, country *domain.Country) {
 	err := rows.Scan(&country.Id, &country.Name, &country.CreatedAt, &country.CreatedBy, &country.CreatedByName,
 		&country.UpdatedAt, &country.UpdatedBy, &country.UpdatedByName, &country.IsDeleted)
 	helper.PanicIfError(err)

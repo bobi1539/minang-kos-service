@@ -23,6 +23,7 @@ func main() {
 
 	router := httprouter.New()
 	router.POST("/api/countries", countryController.Create)
+	router.PUT("/api/countries/:countryId", countryController.Update)
 
 	server := http.Server{
 		Addr:    "localhost:3000",

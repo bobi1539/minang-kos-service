@@ -8,4 +8,5 @@ import (
 
 type CrudController interface {
 	Create(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
+	Update(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
 }

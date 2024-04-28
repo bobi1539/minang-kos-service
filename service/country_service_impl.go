@@ -31,8 +31,7 @@ func (service *CountryServiceImpl) Create(ctx context.Context, webRequest any) a
 	err := service.Validate.Struct(countryRequest)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
+	tx := beginTransaction(service)
 	defer helper.CommitOrRollback(tx)
 
 	country := domain.Country{
@@ -51,4 +50,32 @@ func (service *CountryServiceImpl) Create(ctx context.Context, webRequest any) a
 	country = service.CountryRepository.Save(ctx, tx, country).(domain.Country)
 
 	return helper.ToCountryResponse(country)
+}
+
+func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) any {
+	countryRequest := webRequest.(request.CountryUpdateRequest)
+	err := service.Validate.Struct(countryRequest)
+	helper.PanicIfError(err)
+
+	tx := beginTransaction(service)
+	defer helper.CommitOrRollback(tx)
+
+	countryById, err := service.CountryRepository.FindById(ctx, tx, countryRequest.Id)
+	helper.PanicIfError(err)
+
+	country := countryById.(domain.Country)
+	country.Name = countryRequest.Name
+	country.UpdatedAt = time.Now()
+	country.UpdatedBy = 10
+	country.UpdatedByName = "ucup"
+
+	country = service.CountryRepository.Update(ctx, tx, country).(domain.Country)
+
+	return helper.ToCountryResponse(country)
+}
+
+func beginTransaction(service *CountryServiceImpl) *sql.Tx {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	return tx
 }

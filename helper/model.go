@@ -9,9 +9,9 @@ func ToCountryResponse(country domain.Country) response.CountryResponse {
 	return response.CountryResponse{
 		Id:            country.Id,
 		Name:          country.Name,
-		CreatedAt:     country.UpdatedAt,
+		CreatedAt:     country.CreatedAt,
 		CreatedBy:     country.CreatedBy,
-		CreatedByName: country.UpdatedByName,
+		CreatedByName: country.CreatedByName,
 		UpdatedAt:     country.UpdatedAt,
 		UpdatedBy:     country.UpdatedBy,
 		UpdatedByName: country.UpdatedByName,
