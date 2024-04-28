@@ -53,7 +53,7 @@ func (repository *CountryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx,
 
 func (repository *CountryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error) {
 	sqlQuery := "select id, name, created_at, created_by, created_by_name, " +
-		"updated_at, updated_by, updated_by_name, is_deleted from m_country where id = ?"
+		"updated_at, updated_by, updated_by_name, is_deleted from m_country where id = ? and is_deleted = false"
 
 	rows, err := tx.QueryContext(ctx, sqlQuery, id)
 	helper.PanicIfError(err)
@@ -68,7 +68,7 @@ func (repository *CountryRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 	return country, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[any]any) any {
+func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[any]any) (any, int64) {
 	name := searchBy["name"]
 	page := searchBy["page"]
 	size := searchBy["size"]
@@ -76,10 +76,11 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 	page = page.(int) - 1
 
 	sqlQuery := "select id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted" +
-		" from m_country"
+		" from m_country where is_deleted = false"
 	if name != nil {
-		sqlQuery += " where name like %" + name.(string) + "%"
+		sqlQuery += " and name like %" + name.(string) + "%"
 	}
+
 	sqlQuery += " limit " + size.(string) + " offset " + page.(string)
 	sqlQuery += " order by id asc"
 
@@ -94,16 +95,16 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 	helper.PanicIfError(err)
 	defer rows.Close()
 
-	return getCountries(rows)
+	return getCountries(rows), getTotalItem(ctx, tx, name)
 }
 
 func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[any]any) any {
 	name := searchBy["name"]
 
 	sqlQuery := "select id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted" +
-		" from m_country"
+		" from m_country where is_deleted = false"
 	if name != nil {
-		sqlQuery += " where name like %" + name.(string) + "%"
+		sqlQuery += " and name like %" + name.(string) + "%"
 	}
 	sqlQuery += " order by id asc"
 
@@ -121,12 +122,6 @@ func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 	return getCountries(rows)
 }
 
-func scanCountry(rows *sql.Rows, country domain.Country) {
-	err := rows.Scan(&country.Id, &country.Name, &country.CreatedAt, &country.CreatedBy, &country.CreatedByName,
-		&country.UpdatedAt, &country.UpdatedBy, &country.UpdatedByName, &country.IsDeleted)
-	helper.PanicIfError(err)
-}
-
 func getCountries(rows *sql.Rows) []domain.Country {
 	var countries []domain.Country
 	for rows.Next() {
@@ -135,4 +130,35 @@ func getCountries(rows *sql.Rows) []domain.Country {
 		countries = append(countries, country)
 	}
 	return countries
+}
+
+func scanCountry(rows *sql.Rows, country domain.Country) {
+	err := rows.Scan(&country.Id, &country.Name, &country.CreatedAt, &country.CreatedBy, &country.CreatedByName,
+		&country.UpdatedAt, &country.UpdatedBy, &country.UpdatedByName, &country.IsDeleted)
+	helper.PanicIfError(err)
+}
+
+func getTotalItem(ctx context.Context, tx *sql.Tx, name any) int64 {
+	sqlQuery := "select count(1) as totalItem from m_country where is_deleted = false"
+	if name != nil {
+		sqlQuery += " and name like %" + name.(string) + "%"
+	}
+
+	var rows *sql.Rows
+	var err error
+
+	if name != nil {
+		rows, err = tx.QueryContext(ctx, sqlQuery, name)
+	} else {
+		rows, err = tx.QueryContext(ctx, sqlQuery)
+	}
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	var totalItem int64
+	for rows.Next() {
+		err := rows.Scan(&totalItem)
+		helper.PanicIfError(err)
+	}
+	return totalItem
 }
