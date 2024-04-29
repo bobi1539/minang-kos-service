@@ -90,11 +90,16 @@ func (service *ProvinceServiceImpl) FindById(ctx context.Context, id int64) any 
 }
 
 func (service *ProvinceServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+
 	panic("imp")
 }
 
 func (service *ProvinceServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
-	panic("imp")
+	tx := service.beginTransaction()
+	defer helper.CommitOrRollback(tx)
+
+	provinces := service.ProvinceRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.Province)
+	return helper.ToProvinceResponses(provinces)
 }
 
 func (service *ProvinceServiceImpl) beginTransaction() *sql.Tx {

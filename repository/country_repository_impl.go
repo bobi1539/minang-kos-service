@@ -92,7 +92,7 @@ func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 	sqlQuery := sqlSelectCountry() + sqlSearchByCountry(name)
 	sqlQuery += " ORDER BY id ASC"
 
-	rows := fetchRows(ctx, tx, sqlQuery, name)
+	rows := fetchRowsCountry(ctx, tx, sqlQuery, name)
 	defer rows.Close()
 
 	return getCountries(rows)
@@ -102,7 +102,7 @@ func (repository *CountryRepositoryImpl) FindTotalItem(ctx context.Context, tx *
 	name := searchBy["name"].(string)
 	sqlQuery := sqlFindTotalCountry() + sqlSearchByCountry(name)
 
-	rows := fetchRows(ctx, tx, sqlQuery, name)
+	rows := fetchRowsCountry(ctx, tx, sqlQuery, name)
 	defer rows.Close()
 
 	return scanTotalItem(rows)
@@ -175,7 +175,7 @@ func sqlSearchByCountry(name string) string {
 	return ""
 }
 
-func fetchRows(ctx context.Context, tx *sql.Tx, sqlQuery string, name string) *sql.Rows {
+func fetchRowsCountry(ctx context.Context, tx *sql.Tx, sqlQuery string, name string) *sql.Rows {
 	if len(name) != 0 {
 		rows, err := tx.QueryContext(ctx, sqlQuery, helper.StringQueryLike(name))
 		helper.PanicIfError(err)

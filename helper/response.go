@@ -26,10 +26,10 @@ func BuildInternalServerErrorResponse() response.WebResponse {
 	}
 }
 
-func BuildBadRequestErrorResponse() response.WebResponse {
+func BuildBadRequestErrorResponse(message string) response.WebResponse {
 	return response.WebResponse{
 		Code:    http.StatusBadRequest,
-		Message: constant.DATA_NOT_FOUND,
+		Message: message,
 	}
 }
 

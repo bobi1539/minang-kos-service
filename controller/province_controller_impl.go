@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"errors"
+	"minang-kos-service/constant"
+	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
 	"minang-kos-service/service"
@@ -10,6 +13,7 @@ import (
 )
 
 const PROVINCE_ID = "provinceId"
+const PROVINCE_NAME = "name"
 
 type ProvinceControllerImpl struct {
 	ProvinceService service.ProvinceService
@@ -55,5 +59,17 @@ func (controller *ProvinceControllerImpl) FindAllWithPagination(writer http.Resp
 }
 
 func (controller *ProvinceControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	searchBy := make(map[string]any)
+	searchBy["name"] = helper.GetQueryParam(httpRequest, PROVINCE_NAME)
+	searchBy["countryId"] = getCountryId(helper.GetQueryParam(httpRequest, COUNTRY_ID))
+
+	provinceResponses := controller.ProvinceService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
+	helper.WriteSuccessResponse(writer, provinceResponses)
+}
+
+func getCountryId(countryId string) int64 {
+	if len(countryId) == 0 {
+		exception.PanicErrorBadRequest(errors.New(constant.COUNTRY_ID_REQUIRED))
+	}
+	return helper.StringToInt64(countryId)
 }

@@ -32,11 +32,11 @@ func internalServerError(writer http.ResponseWriter, request *http.Request) {
 }
 
 func badRequestError(writer http.ResponseWriter, request *http.Request, err any) bool {
-	_, ok := err.(ErrorBadRequest)
+	exception, ok := err.(ErrorBadRequest)
 	if ok {
 		writer.WriteHeader(http.StatusBadRequest)
 
-		webResponse := helper.BuildBadRequestErrorResponse()
+		webResponse := helper.BuildBadRequestErrorResponse(exception.Error)
 		helper.WriteToResponseBody(writer, webResponse)
 		return true
 	}

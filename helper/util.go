@@ -19,6 +19,12 @@ func StringToInt(value string) int {
 	return intValue
 }
 
+func StringToInt64(value string) int64 {
+	intValue, err := strconv.Atoi(value)
+	PanicIfError(err)
+	return int64(intValue)
+}
+
 func GetSqlOffset(page int, size int) int {
 	return (page - 1) * size
 }
