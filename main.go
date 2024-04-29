@@ -23,15 +23,10 @@ func main() {
 
 	router := httprouter.New()
 	endpoint.SetCountryEndpoint(router, getCountryController(db, validate))
+	endpoint.SetProvinceEndpoint(router, getProvinceController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
-}
-
-func getCountryController(db *sql.DB, validate *validator.Validate) controller.CountryController {
-	countryRepository := repository.NewCountryRepository()
-	countryService := service.NewCountryService(countryRepository, db, validate)
-	return controller.NewCountryController(countryService)
 }
 
 func runServer(router *httprouter.Router) {
@@ -42,4 +37,17 @@ func runServer(router *httprouter.Router) {
 
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
+}
+
+func getCountryController(db *sql.DB, validate *validator.Validate) controller.CountryController {
+	countryRepository := repository.NewCountryRepository()
+	countryService := service.NewCountryService(countryRepository, db, validate)
+	return controller.NewCountryController(countryService)
+}
+
+func getProvinceController(db *sql.DB, validate *validator.Validate) controller.ProvinceController {
+	provinceRepository := repository.NewProvinceRepository()
+	countryRepository := repository.NewCountryRepository()
+	provinceService := service.NewProvinceService(provinceRepository, countryRepository, db, validate)
+	return controller.NewProvinceController(provinceService)
 }

@@ -19,7 +19,7 @@ func NewCountryRepository() CountryRepository {
 func (repository *CountryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	country := domainModel.(domain.Country)
 	result, err := tx.ExecContext(
-		ctx, getSqlSave(), country.Name, country.CreatedAt, country.CreatedBy, country.CreatedByName,
+		ctx, getSqlSaveCountry(), country.Name, country.CreatedAt, country.CreatedBy, country.CreatedByName,
 		country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.IsDeleted,
 	)
 	helper.PanicIfError(err)
@@ -121,7 +121,7 @@ func scanCountry(rows *sql.Rows, country *domain.Country) {
 	helper.PanicIfError(err)
 }
 
-func getSqlSave() string {
+func getSqlSaveCountry() string {
 	return "INSERT INTO m_country(name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted) VALUES (?,?,?,?,?,?,?,?)"
 }
 

@@ -32,20 +32,12 @@ func (service *CountryServiceImpl) Create(ctx context.Context, webRequest any) a
 	err := service.Validate.Struct(countryRequest)
 	helper.PanicIfError(err)
 
-	tx := beginTransaction(service)
+	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
 	country := domain.Country{
-		Name: countryRequest.Name,
-		BaseDomain: domain.BaseDomain{
-			CreatedAt:     time.Now(),
-			CreatedBy:     1,
-			CreatedByName: "test",
-			UpdatedAt:     time.Now(),
-			UpdatedBy:     1,
-			UpdatedByName: "test",
-			IsDeleted:     false,
-		},
+		Name:       countryRequest.Name,
+		BaseDomain: helper.BuildBaseDomain(),
 	}
 
 	country = service.CountryRepository.Save(ctx, tx, country).(domain.Country)
@@ -58,7 +50,7 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 	err := service.Validate.Struct(countryRequest)
 	helper.PanicIfError(err)
 
-	tx := beginTransaction(service)
+	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, countryRequest.Id)
@@ -76,7 +68,7 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 }
 
 func (service *CountryServiceImpl) Delete(ctx context.Context, id int64) {
-	tx := beginTransaction(service)
+	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, id)
@@ -92,7 +84,7 @@ func (service *CountryServiceImpl) Delete(ctx context.Context, id int64) {
 }
 
 func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
-	tx := beginTransaction(service)
+	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, id)
@@ -103,7 +95,7 @@ func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
 }
 
 func (service *CountryServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
-	tx := beginTransaction(service)
+	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
 	countries := service.CountryRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.Country)
@@ -112,14 +104,14 @@ func (service *CountryServiceImpl) FindAllWithPagination(ctx context.Context, se
 }
 
 func (service *CountryServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
-	tx := beginTransaction(service)
+	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
 	countries := service.CountryRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.Country)
 	return helper.ToCountryResponses(countries)
 }
 
-func beginTransaction(service *CountryServiceImpl) *sql.Tx {
+func (service *CountryServiceImpl) beginTransaction() *sql.Tx {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	return tx
