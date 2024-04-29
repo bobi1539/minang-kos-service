@@ -33,7 +33,7 @@ func (repository *CountryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, d
 
 func (repository *CountryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	country := domainModel.(domain.Country)
-	_, err := tx.ExecContext(ctx, getSqlUpdate(), country.Name, country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.Id)
+	_, err := tx.ExecContext(ctx, getSqlUpdateCountry(), country.Name, country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.Id)
 	helper.PanicIfError(err)
 
 	return country
@@ -46,7 +46,7 @@ func (repository *CountryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *CountryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error) {
-	rows, err := tx.QueryContext(ctx, getSqlFindById(), id)
+	rows, err := tx.QueryContext(ctx, getSqlFindByIdCountry(), id)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -125,7 +125,7 @@ func getSqlSaveCountry() string {
 	return "INSERT INTO m_country(name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted) VALUES (?,?,?,?,?,?,?,?)"
 }
 
-func getSqlUpdate() string {
+func getSqlUpdateCountry() string {
 	return "UPDATE m_country SET name = ?, updated_at = ?, updated_by = ?, updated_by_name = ? WHERE id = ?"
 }
 
@@ -133,7 +133,7 @@ func getSqlDelete() string {
 	return "UPDATE m_country SET updated_at = ?, updated_by = ?, updated_by_name = ?, is_deleted = ? WHERE id = ?"
 }
 
-func getSqlFindById() string {
+func getSqlFindByIdCountry() string {
 	return "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted FROM m_country WHERE id = ? AND is_deleted = false"
 }
 

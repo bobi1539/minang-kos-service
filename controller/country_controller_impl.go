@@ -23,21 +23,19 @@ func NewCountryController(countryService service.CountryService) CountryControll
 }
 
 func (controller *CountryControllerImpl) Create(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	countryCreateRequest := request.CountryCreateRequest{}
-	helper.ReadFromRequestBody(httpRequest, &countryCreateRequest)
+	countryRequest := request.CountryCreateRequest{}
+	helper.ReadFromRequestBody(httpRequest, &countryRequest)
 
-	countryResponse := controller.CountryService.Create(httpRequest.Context(), countryCreateRequest)
+	countryResponse := controller.CountryService.Create(httpRequest.Context(), countryRequest)
 	helper.WriteSuccessResponse(writer, countryResponse)
 }
 
 func (controller *CountryControllerImpl) Update(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	countryUpdateRequest := request.CountryUpdateRequest{}
-	helper.ReadFromRequestBody(httpRequest, &countryUpdateRequest)
+	countryRequest := request.CountryUpdateRequest{}
+	helper.ReadFromRequestBody(httpRequest, &countryRequest)
 
-	countryId := helper.GetIdFromPath(params, COUNTRY_ID)
-	countryUpdateRequest.Id = countryId
-
-	countryResponse := controller.CountryService.Update(httpRequest.Context(), countryUpdateRequest)
+	countryRequest.Id = helper.GetIdFromPath(params, COUNTRY_ID)
+	countryResponse := controller.CountryService.Update(httpRequest.Context(), countryRequest)
 	helper.WriteSuccessResponse(writer, countryResponse)
 }
 

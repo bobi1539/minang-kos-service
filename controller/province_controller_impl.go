@@ -9,6 +9,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+const PROVINCE_ID = "provinceId"
+
 type ProvinceControllerImpl struct {
 	ProvinceService service.ProvinceService
 }
@@ -28,7 +30,12 @@ func (controller *ProvinceControllerImpl) Create(writer http.ResponseWriter, htt
 }
 
 func (controller *ProvinceControllerImpl) Update(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	provinceRequest := request.ProvinceUpdateRequest{}
+	helper.ReadFromRequestBody(httpRequest, &provinceRequest)
+
+	provinceRequest.Id = helper.GetIdFromPath(params, PROVINCE_ID)
+	provinceResponse := controller.ProvinceService.Update(httpRequest.Context(), provinceRequest)
+	helper.WriteSuccessResponse(writer, provinceResponse)
 }
 
 func (controller *ProvinceControllerImpl) Delete(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
@@ -36,7 +43,9 @@ func (controller *ProvinceControllerImpl) Delete(writer http.ResponseWriter, htt
 }
 
 func (controller *ProvinceControllerImpl) FindById(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	provinceId := helper.GetIdFromPath(params, PROVINCE_ID)
+	provinceResponse := controller.ProvinceService.FindById(httpRequest.Context(), provinceId)
+	helper.WriteSuccessResponse(writer, provinceResponse)
 }
 
 func (controller *ProvinceControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
