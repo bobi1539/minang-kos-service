@@ -11,4 +11,6 @@ type CrudController interface {
 	Update(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
 	Delete(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
 	FindById(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
+	FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
+	FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params)
 }

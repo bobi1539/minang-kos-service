@@ -1,6 +1,7 @@
 package exception
 
 import (
+	"fmt"
 	"minang-kos-service/helper"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 )
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err any) {
+	fmt.Println(err)
 	if notFoundError(writer, request, err) {
 		return
 	}

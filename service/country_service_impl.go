@@ -76,7 +76,19 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 }
 
 func (service *CountryServiceImpl) Delete(ctx context.Context, id int64) {
+	tx := beginTransaction(service)
+	defer helper.CommitOrRollback(tx)
 
+	countryById, err := service.CountryRepository.FindById(ctx, tx, id)
+	exception.PanicErrorNotFound(err)
+
+	country := countryById.(domain.Country)
+	country.UpdatedAt = time.Now()
+	country.UpdatedBy = 12
+	country.UpdatedByName = "tono"
+	country.IsDeleted = true
+
+	service.CountryRepository.Delete(ctx, tx, country)
 }
 
 func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
@@ -88,6 +100,23 @@ func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
 
 	country := countryById.(domain.Country)
 	return helper.ToCountryResponse(country)
+}
+
+func (service *CountryServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+	tx := beginTransaction(service)
+	defer helper.CommitOrRollback(tx)
+
+	countries := service.CountryRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.Country)
+	totalItem := service.CountryRepository.FindTotalItem(ctx, tx, searchBy)
+	return helper.ToResponsePagination(searchBy["page"].(int), searchBy["size"].(int), totalItem, helper.ToCountryResponses(countries))
+}
+
+func (service *CountryServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
+	tx := beginTransaction(service)
+	defer helper.CommitOrRollback(tx)
+
+	countries := service.CountryRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.Country)
+	return helper.ToCountryResponses(countries)
 }
 
 func beginTransaction(service *CountryServiceImpl) *sql.Tx {

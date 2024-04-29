@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+func WriteSuccessResponse(writer http.ResponseWriter, data any) {
+	webResponse := BuildSuccessResponse(data)
+	WriteToResponseBody(writer, webResponse)
+}
+
 func BuildSuccessResponse(data any) response.WebResponse {
 	return response.WebResponse{
 		Code:    200,

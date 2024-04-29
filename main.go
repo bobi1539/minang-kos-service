@@ -1,9 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"minang-kos-service/app"
 	"minang-kos-service/controller"
-	"minang-kos-service/exception"
+	"minang-kos-service/endpoint"
 	"minang-kos-service/helper"
 	"minang-kos-service/repository"
 	"minang-kos-service/service"
@@ -18,17 +19,21 @@ import (
 func main() {
 	db := app.NewDB()
 	validate := validator.New()
-	countryRepository := repository.NewCountryRepository()
-	countryService := service.NewCountryService(countryRepository, db, validate)
-	countryController := controller.NewCountryController(countryService)
 
 	router := httprouter.New()
-	router.POST("/api/countries", countryController.Create)
-	router.PUT("/api/countries/:countryId", countryController.Update)
-	router.GET("/api/countries/:countryId", countryController.FindById)
+	endpoint.SetCountryEndpoint(router, getCountryController(db, validate))
+	// router.PanicHandler = exception.ErrorHandler
 
-	router.PanicHandler = exception.ErrorHandler
+	runServer(router)
+}
 
+func getCountryController(db *sql.DB, validate *validator.Validate) controller.CountryController {
+	countryRepository := repository.NewCountryRepository()
+	countryService := service.NewCountryService(countryRepository, db, validate)
+	return controller.NewCountryController(countryService)
+}
+
+func runServer(router *httprouter.Router) {
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,
