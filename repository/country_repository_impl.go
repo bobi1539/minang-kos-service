@@ -78,11 +78,9 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 	sqlQuery := "select id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted" +
 		" from m_country where is_deleted = false"
 	if name != nil {
-		sqlQuery += " and name like %" + name.(string) + "%"
+		sqlQuery += " and name like %?%"
 	}
-
-	sqlQuery += " limit " + size.(string) + " offset " + page.(string)
-	sqlQuery += " order by id asc"
+	sqlQuery += " limit ? offset ? order by id asc"
 
 	var rows *sql.Rows
 	var err error
@@ -104,7 +102,7 @@ func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 	sqlQuery := "select id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted" +
 		" from m_country where is_deleted = false"
 	if name != nil {
-		sqlQuery += " and name like %" + name.(string) + "%"
+		sqlQuery += " and name like %?%"
 	}
 	sqlQuery += " order by id asc"
 
@@ -141,7 +139,7 @@ func scanCountry(rows *sql.Rows, country *domain.Country) {
 func getTotalItem(ctx context.Context, tx *sql.Tx, name any) int64 {
 	sqlQuery := "select count(1) as totalItem from m_country where is_deleted = false"
 	if name != nil {
-		sqlQuery += " and name like %" + name.(string) + "%"
+		sqlQuery += " and name like %?%"
 	}
 
 	var rows *sql.Rows

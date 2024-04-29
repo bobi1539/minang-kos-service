@@ -3,6 +3,7 @@ package main
 import (
 	"minang-kos-service/app"
 	"minang-kos-service/controller"
+	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/repository"
 	"minang-kos-service/service"
@@ -24,6 +25,9 @@ func main() {
 	router := httprouter.New()
 	router.POST("/api/countries", countryController.Create)
 	router.PUT("/api/countries/:countryId", countryController.Update)
+	router.GET("/api/countries/:countryId", countryController.FindById)
+
+	router.PanicHandler = exception.ErrorHandler
 
 	server := http.Server{
 		Addr:    "localhost:3000",

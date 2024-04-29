@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
@@ -61,7 +62,7 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, countryRequest.Id)
-	helper.PanicIfError(err)
+	exception.PanicErrorNotFound(err)
 
 	country := countryById.(domain.Country)
 	country.Name = countryRequest.Name
@@ -71,6 +72,21 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 
 	country = service.CountryRepository.Update(ctx, tx, country).(domain.Country)
 
+	return helper.ToCountryResponse(country)
+}
+
+func (service *CountryServiceImpl) Delete(ctx context.Context, id int64) {
+
+}
+
+func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
+	tx := beginTransaction(service)
+	defer helper.CommitOrRollback(tx)
+
+	countryById, err := service.CountryRepository.FindById(ctx, tx, id)
+	exception.PanicErrorNotFound(err)
+
+	country := countryById.(domain.Country)
 	return helper.ToCountryResponse(country)
 }
 
