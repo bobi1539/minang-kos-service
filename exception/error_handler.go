@@ -1,15 +1,18 @@
 package exception
 
 import (
-	"fmt"
 	"minang-kos-service/helper"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 )
 
+var log *logrus.Logger = helper.GetLogger()
+
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err any) {
-	fmt.Println(err)
+	log.Error(err)
+
 	if badRequestError(writer, request, err) {
 		return
 	}
