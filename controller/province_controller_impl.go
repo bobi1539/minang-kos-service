@@ -39,7 +39,9 @@ func (controller *ProvinceControllerImpl) Update(writer http.ResponseWriter, htt
 }
 
 func (controller *ProvinceControllerImpl) Delete(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	provinceId := helper.GetIdFromPath(params, PROVINCE_ID)
+	controller.ProvinceService.Delete(httpRequest.Context(), provinceId)
+	helper.WriteSuccessResponse(writer, nil)
 }
 
 func (controller *ProvinceControllerImpl) FindById(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {

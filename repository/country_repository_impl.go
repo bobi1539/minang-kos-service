@@ -19,7 +19,7 @@ func NewCountryRepository() CountryRepository {
 func (repository *CountryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	country := domainModel.(domain.Country)
 	result, err := tx.ExecContext(
-		ctx, getSqlSaveCountry(), country.Name, country.CreatedAt, country.CreatedBy, country.CreatedByName,
+		ctx, sqlSaveCountry(), country.Name, country.CreatedAt, country.CreatedBy, country.CreatedByName,
 		country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.IsDeleted,
 	)
 	helper.PanicIfError(err)
@@ -33,7 +33,7 @@ func (repository *CountryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, d
 
 func (repository *CountryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	country := domainModel.(domain.Country)
-	_, err := tx.ExecContext(ctx, getSqlUpdateCountry(), country.Name, country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.Id)
+	_, err := tx.ExecContext(ctx, sqlUpdateCountry(), country.Name, country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.Id)
 	helper.PanicIfError(err)
 
 	return country
@@ -41,12 +41,15 @@ func (repository *CountryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 
 func (repository *CountryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, domainModel any) {
 	country := domainModel.(domain.Country)
-	_, err := tx.ExecContext(ctx, getSqlDelete(), country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, true, country.Id)
+	_, err := tx.ExecContext(
+		ctx, sqlDeleteCountry(), country.UpdatedAt, country.UpdatedBy, country.UpdatedByName, country.IsDeleted, country.Id,
+	)
 	helper.PanicIfError(err)
 }
 
 func (repository *CountryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error) {
-	rows, err := tx.QueryContext(ctx, getSqlFindByIdCountry(), id)
+	sqlQuery := sqlSelectCountry() + " AND id = ?"
+	rows, err := tx.QueryContext(ctx, sqlQuery, id)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -66,7 +69,7 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 
 	page = helper.GetSqlOffset(page, size)
 
-	sqlQuery := getSqlFindAll() + addSearchByName(name)
+	sqlQuery := sqlSelectCountry() + sqlSearchByCountry(name)
 	sqlQuery += " ORDER BY id ASC LIMIT ? OFFSET ?"
 
 	var rows *sql.Rows
@@ -86,7 +89,7 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
 	name := searchBy["name"].(string)
 
-	sqlQuery := getSqlFindAll() + addSearchByName(name)
+	sqlQuery := sqlSelectCountry() + sqlSearchByCountry(name)
 	sqlQuery += " ORDER BY id ASC"
 
 	rows := fetchRows(ctx, tx, sqlQuery, name)
@@ -97,7 +100,7 @@ func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 
 func (repository *CountryRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
 	name := searchBy["name"].(string)
-	sqlQuery := getSqlFindTotalItem() + addSearchByName(name)
+	sqlQuery := sqlFindTotalCountry() + sqlSearchByCountry(name)
 
 	rows := fetchRows(ctx, tx, sqlQuery, name)
 	defer rows.Close()
@@ -121,31 +124,51 @@ func scanCountry(rows *sql.Rows, country *domain.Country) {
 	helper.PanicIfError(err)
 }
 
-func getSqlSaveCountry() string {
-	return "INSERT INTO m_country(name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted) VALUES (?,?,?,?,?,?,?,?)"
+func sqlSaveCountry() string {
+	return "INSERT INTO m_country(name," +
+		" created_at," +
+		" created_by," +
+		" created_by_name," +
+		" updated_at," +
+		" updated_by," +
+		" updated_by_name," +
+		" is_deleted) VALUES (?,?,?,?,?,?,?,?)"
 }
 
-func getSqlUpdateCountry() string {
-	return "UPDATE m_country SET name = ?, updated_at = ?, updated_by = ?, updated_by_name = ? WHERE id = ?"
+func sqlUpdateCountry() string {
+	return "UPDATE m_country SET name = ?," +
+		" updated_at = ?," +
+		" updated_by = ?," +
+		" updated_by_name = ?" +
+		" WHERE id = ?"
 }
 
-func getSqlDelete() string {
-	return "UPDATE m_country SET updated_at = ?, updated_by = ?, updated_by_name = ?, is_deleted = ? WHERE id = ?"
+func sqlDeleteCountry() string {
+	return "UPDATE m_country SET updated_at = ?," +
+		" updated_by = ?," +
+		" updated_by_name = ?," +
+		" is_deleted = ?" +
+		" WHERE id = ?"
 }
 
-func getSqlFindByIdCountry() string {
-	return "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted FROM m_country WHERE id = ? AND is_deleted = false"
+func sqlSelectCountry() string {
+	return "SELECT id," +
+		" name," +
+		" created_at," +
+		" created_by," +
+		" created_by_name," +
+		" updated_at," +
+		" updated_by," +
+		" updated_by_name," +
+		" is_deleted FROM m_country" +
+		" WHERE is_deleted = false"
 }
 
-func getSqlFindAll() string {
-	return "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted FROM m_country WHERE is_deleted = false"
-}
-
-func getSqlFindTotalItem() string {
+func sqlFindTotalCountry() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_country WHERE is_deleted = false"
 }
 
-func addSearchByName(name string) string {
+func sqlSearchByCountry(name string) string {
 	if len(name) != 0 {
 		return " AND LOWER(name) LIKE ?"
 	}

@@ -19,7 +19,7 @@ func NewProvinceRepository() ProvinceRepository {
 func (repository *ProvinceRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	province := domainModel.(domain.Province)
 	result, err := tx.ExecContext(
-		ctx, getSqlSaveProvince(), province.Name, province.Country.Id, province.CreatedAt, province.CreatedBy, province.CreatedByName,
+		ctx, sqlSaveProvince(), province.Name, province.Country.Id, province.CreatedAt, province.CreatedBy, province.CreatedByName,
 		province.UpdatedAt, province.UpdatedBy, province.UpdatedByName, province.IsDeleted,
 	)
 	helper.PanicIfError(err)
@@ -34,7 +34,7 @@ func (repository *ProvinceRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 func (repository *ProvinceRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	province := domainModel.(domain.Province)
 	_, err := tx.ExecContext(
-		ctx, getSqlUpdateProvince(), province.Name, province.Country.Id,
+		ctx, sqlUpdateProvince(), province.Name, province.Country.Id,
 		province.UpdatedAt, province.UpdatedBy, province.UpdatedByName, province.Id,
 	)
 	helper.PanicIfError(err)
@@ -43,11 +43,17 @@ func (repository *ProvinceRepositoryImpl) Update(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *ProvinceRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, domainModel any) {
-	panic("imp")
+	province := domainModel.(domain.Province)
+	_, err := tx.ExecContext(
+		ctx, sqlDeleteProvince(), province.UpdatedAt, province.UpdatedBy,
+		province.UpdatedByName, province.IsDeleted, province.Id,
+	)
+	helper.PanicIfError(err)
 }
 
 func (repository *ProvinceRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error) {
-	rows, err := tx.QueryContext(ctx, getSqlFindByIdProvince(), id)
+	sqlQuery := sqlSelectProvince() + " AND mp.id = ?"
+	rows, err := tx.QueryContext(ctx, sqlQuery, id)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -71,7 +77,7 @@ func (repository *ProvinceRepositoryImpl) FindTotalItem(ctx context.Context, tx 
 	panic("imp")
 }
 
-func getSqlSaveProvince() string {
+func sqlSaveProvince() string {
 	return "INSERT INTO m_province(name," +
 		" country_id," +
 		" created_at," +
@@ -83,7 +89,7 @@ func getSqlSaveProvince() string {
 		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?)"
 }
 
-func getSqlUpdateProvince() string {
+func sqlUpdateProvince() string {
 	return "UPDATE m_province SET name = ?," +
 		" country_id = ?," +
 		" updated_at = ?," +
@@ -91,7 +97,15 @@ func getSqlUpdateProvince() string {
 		" updated_by_name = ? WHERE id = ?"
 }
 
-func getSqlFindByIdProvince() string {
+func sqlDeleteProvince() string {
+	return "UPDATE m_province SET updated_at = ?," +
+		" updated_by = ?," +
+		" updated_by_name = ?," +
+		" is_deleted = ?" +
+		" WHERE id = ?"
+}
+
+func sqlSelectProvince() string {
 	return "SELECT mp.id," +
 		" mp.name," +
 		" mp.country_id," +
@@ -110,7 +124,8 @@ func getSqlFindByIdProvince() string {
 		" mc.updated_by," +
 		" mc.updated_by_name," +
 		" mc.is_deleted FROM m_province mp" +
-		" LEFT JOIN m_country mc ON mp.country_id = mc.id WHERE mp.id = ? AND mp.is_deleted = false"
+		" LEFT JOIN m_country mc ON mp.country_id = mc.id" +
+		" WHERE mp.is_deleted = false"
 }
 
 func scanProvince(rows *sql.Rows, province *domain.Province) {

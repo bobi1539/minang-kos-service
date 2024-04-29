@@ -70,7 +70,15 @@ func (service *ProvinceServiceImpl) Update(ctx context.Context, webRequest any) 
 }
 
 func (service *ProvinceServiceImpl) Delete(ctx context.Context, id int64) {
-	panic("imp")
+	tx := service.beginTransaction()
+	defer helper.CommitOrRollback(tx)
+
+	province := service.findProvinceById(ctx, tx, id)
+	province.UpdatedAt = time.Now()
+	province.UpdatedBy = 2
+	province.UpdatedByName = "Tono"
+	province.IsDeleted = true
+	service.ProvinceRepository.Delete(ctx, tx, province)
 }
 
 func (service *ProvinceServiceImpl) FindById(ctx context.Context, id int64) any {
