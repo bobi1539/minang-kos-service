@@ -26,7 +26,7 @@ func BuildInternalServerErrorResponse() response.WebResponse {
 	}
 }
 
-func BuildNotFoundErrorResponse() response.WebResponse {
+func BuildBadRequestErrorResponse() response.WebResponse {
 	return response.WebResponse{
 		Code:    http.StatusBadRequest,
 		Message: constant.DATA_NOT_FOUND,

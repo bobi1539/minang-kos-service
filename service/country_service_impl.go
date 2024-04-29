@@ -62,7 +62,7 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, countryRequest.Id)
-	exception.PanicErrorNotFound(err)
+	exception.PanicErrorBadRequest(err)
 
 	country := countryById.(domain.Country)
 	country.Name = countryRequest.Name
@@ -80,7 +80,7 @@ func (service *CountryServiceImpl) Delete(ctx context.Context, id int64) {
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, id)
-	exception.PanicErrorNotFound(err)
+	exception.PanicErrorBadRequest(err)
 
 	country := countryById.(domain.Country)
 	country.UpdatedAt = time.Now()
@@ -96,7 +96,7 @@ func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
 	defer helper.CommitOrRollback(tx)
 
 	countryById, err := service.CountryRepository.FindById(ctx, tx, id)
-	exception.PanicErrorNotFound(err)
+	exception.PanicErrorBadRequest(err)
 
 	country := countryById.(domain.Country)
 	return helper.ToCountryResponse(country)

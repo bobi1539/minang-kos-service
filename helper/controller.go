@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"minang-kos-service/constant"
 	"net/http"
 	"strconv"
 
@@ -17,4 +18,19 @@ func GetIdFromPath(params httprouter.Params, name string) int64 {
 func GetQueryParam(httpRequest *http.Request, name string) string {
 	queryParam := httpRequest.URL.Query()
 	return queryParam.Get(name)
+}
+
+func GetPageOrSize(httpRequest *http.Request, name string) int {
+	value := GetQueryParam(httpRequest, name)
+	if len(value) == 0 {
+		switch name {
+		case constant.PAGE:
+			return 1
+		case constant.SIZE:
+			return 10
+		default:
+			return 1
+		}
+	}
+	return StringToInt(value)
 }

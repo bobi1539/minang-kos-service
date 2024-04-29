@@ -64,13 +64,9 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 	page := searchBy["page"].(int)
 	size := searchBy["size"].(int)
 
-	page = (page - 1) * size
+	page = helper.GetSqlOffset(page, size)
 
-	sqlQuery := "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted" +
-		" FROM m_country WHERE is_deleted = false"
-	if len(name) != 0 {
-		sqlQuery += " AND LOWER(name) LIKE ?"
-	}
+	sqlQuery := getSqlFindAll() + addSearchByName(name)
 	sqlQuery += " ORDER BY id ASC LIMIT ? OFFSET ?"
 
 	var rows *sql.Rows
@@ -90,22 +86,10 @@ func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Conte
 func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
 	name := searchBy["name"].(string)
 
-	sqlQuery := "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted" +
-		" FROM m_country WHERE is_deleted = false"
-	if len(name) != 0 {
-		sqlQuery += " AND LOWER(name) LIKE ?"
-	}
+	sqlQuery := getSqlFindAll() + addSearchByName(name)
 	sqlQuery += " ORDER BY id ASC"
 
-	var rows *sql.Rows
-	var err error
-
-	if len(name) != 0 {
-		rows, err = tx.QueryContext(ctx, sqlQuery, helper.StringQueryLike(name))
-	} else {
-		rows, err = tx.QueryContext(ctx, sqlQuery)
-	}
-	helper.PanicIfError(err)
+	rows := fetchRows(ctx, tx, sqlQuery, name)
 	defer rows.Close()
 
 	return getCountries(rows)
@@ -113,28 +97,12 @@ func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 
 func (repository *CountryRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
 	name := searchBy["name"].(string)
-	sqlQuery := "SELECT COUNT(1) AS totalItem FROM m_country WHERE is_deleted = false"
-	if len(name) != 0 {
-		sqlQuery += " AND LOWER(name) LIKE ?"
-	}
+	sqlQuery := getSqlFindTotalItem() + addSearchByName(name)
 
-	var rows *sql.Rows
-	var err error
-
-	if len(name) != 0 {
-		rows, err = tx.QueryContext(ctx, sqlQuery, helper.StringQueryLike(name))
-	} else {
-		rows, err = tx.QueryContext(ctx, sqlQuery)
-	}
-	helper.PanicIfError(err)
+	rows := fetchRows(ctx, tx, sqlQuery, name)
 	defer rows.Close()
 
-	var totalItem int
-	for rows.Next() {
-		err := rows.Scan(&totalItem)
-		helper.PanicIfError(err)
-	}
-	return totalItem
+	return scanTotalItem(rows)
 }
 
 func getCountries(rows *sql.Rows) []domain.Country {
@@ -167,4 +135,40 @@ func getSqlDelete() string {
 
 func getSqlFindById() string {
 	return "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted FROM m_country WHERE id = ? AND is_deleted = false"
+}
+
+func getSqlFindAll() string {
+	return "SELECT id, name, created_at, created_by, created_by_name, updated_at, updated_by, updated_by_name, is_deleted FROM m_country WHERE is_deleted = false"
+}
+
+func getSqlFindTotalItem() string {
+	return "SELECT COUNT(1) AS totalItem FROM m_country WHERE is_deleted = false"
+}
+
+func addSearchByName(name string) string {
+	if len(name) != 0 {
+		return " AND LOWER(name) LIKE ?"
+	}
+	return ""
+}
+
+func fetchRows(ctx context.Context, tx *sql.Tx, sqlQuery string, name string) *sql.Rows {
+	if len(name) != 0 {
+		rows, err := tx.QueryContext(ctx, sqlQuery, helper.StringQueryLike(name))
+		helper.PanicIfError(err)
+		return rows
+	}
+
+	rows, err := tx.QueryContext(ctx, sqlQuery)
+	helper.PanicIfError(err)
+	return rows
+}
+
+func scanTotalItem(rows *sql.Rows) int {
+	var totalItem int
+	for rows.Next() {
+		err := rows.Scan(&totalItem)
+		helper.PanicIfError(err)
+	}
+	return totalItem
 }

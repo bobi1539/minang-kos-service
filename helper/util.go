@@ -14,3 +14,7 @@ func StringToInt(value string) int {
 	PanicIfError(err)
 	return intValue
 }
+
+func GetSqlOffset(page int, size int) int {
+	return (page - 1) * size
+}

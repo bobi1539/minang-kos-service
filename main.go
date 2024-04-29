@@ -5,6 +5,7 @@ import (
 	"minang-kos-service/app"
 	"minang-kos-service/controller"
 	"minang-kos-service/endpoint"
+	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/repository"
 	"minang-kos-service/service"
@@ -22,7 +23,7 @@ func main() {
 
 	router := httprouter.New()
 	endpoint.SetCountryEndpoint(router, getCountryController(db, validate))
-	// router.PanicHandler = exception.ErrorHandler
+	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
 }

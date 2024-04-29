@@ -10,7 +10,7 @@ import (
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err any) {
 	fmt.Println(err)
-	if notFoundError(writer, request, err) {
+	if badRequestError(writer, request, err) {
 		return
 	}
 
@@ -28,12 +28,12 @@ func internalServerError(writer http.ResponseWriter, request *http.Request) {
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-func notFoundError(writer http.ResponseWriter, request *http.Request, err any) bool {
-	_, ok := err.(ErrorNotFound)
+func badRequestError(writer http.ResponseWriter, request *http.Request, err any) bool {
+	_, ok := err.(ErrorBadRequest)
 	if ok {
 		writer.WriteHeader(http.StatusBadRequest)
 
-		webResponse := helper.BuildNotFoundErrorResponse()
+		webResponse := helper.BuildBadRequestErrorResponse()
 		helper.WriteToResponseBody(writer, webResponse)
 		return true
 	}
@@ -52,8 +52,8 @@ func validationError(writer http.ResponseWriter, request *http.Request, err any)
 	return false
 }
 
-func PanicErrorNotFound(err error) {
+func PanicErrorBadRequest(err error) {
 	if err != nil {
-		panic(NewErrorNotFound(err.Error()))
+		panic(NewErrorBadRequest(err.Error()))
 	}
 }
