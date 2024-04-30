@@ -3,6 +3,7 @@ package exception
 import (
 	"minang-kos-service/helper"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -11,7 +12,7 @@ import (
 var log *logrus.Logger = helper.GetLogger()
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err any) {
-	log.Error(err)
+	log.Error(err, string(debug.Stack()))
 
 	if badRequestError(writer, request, err) {
 		return
