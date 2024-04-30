@@ -37,9 +37,10 @@ func (service *AuthServiceImpl) Login(ctx context.Context, request request.AuthL
 	user, err := service.UserRepository.FindByEmail(ctx, tx, request.Email)
 	exception.PanicErrorLogin(err)
 
-	service.validatePassword(user.Password, request.Password)
+	validatePassword(user.Password, request.Password)
 
-	return helper.ToLoginResponse(user.Email, "hehe")
+	jwtToken := helper.GenerateToken(user)
+	return helper.ToLoginResponse(jwtToken, helper.GetJwtExpired())
 }
 
 func (service *AuthServiceImpl) beginTransaction() *sql.Tx {
@@ -48,7 +49,7 @@ func (service *AuthServiceImpl) beginTransaction() *sql.Tx {
 	return tx
 }
 
-func (service *AuthServiceImpl) validatePassword(hashPassword string, password string) {
+func validatePassword(hashPassword string, password string) {
 	err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
 	if err != nil {
 		exception.PanicErrorLogin(err)
