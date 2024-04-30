@@ -80,3 +80,23 @@ func ToProvinceResponses(provinces []domain.Province) []response.ProvinceRespons
 	}
 	return provinceResponses
 }
+
+func ToRoleResponse(role domain.Role) response.RoleResponse {
+	return response.RoleResponse{
+		Id:                 role.Id,
+		Name:               role.Name,
+		BaseDomainResponse: ToBaseDomainResponse(role.BaseDomain),
+	}
+}
+
+func ToRoleResponses(roles []domain.Role) []response.RoleResponse {
+	if roles == nil {
+		return make([]response.RoleResponse, 0)
+	}
+
+	var roleResponses []response.RoleResponse
+	for _, role := range roles {
+		roleResponses = append(roleResponses, ToRoleResponse(role))
+	}
+	return roleResponses
+}

@@ -26,6 +26,7 @@ func main() {
 	router := httprouter.New()
 	endpoint.SetCountryEndpoint(router, getCountryController(db, validate))
 	endpoint.SetProvinceEndpoint(router, getProvinceController(db, validate))
+	endpoint.SetRoleEndpoint(router, getRoleController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
@@ -52,4 +53,10 @@ func getProvinceController(db *sql.DB, validate *validator.Validate) controller.
 	countryRepository := repository.NewCountryRepository()
 	provinceService := service.NewProvinceService(provinceRepository, countryRepository, db, validate)
 	return controller.NewProvinceController(provinceService)
+}
+
+func getRoleController(db *sql.DB, validate *validator.Validate) controller.CountryController {
+	roleRepository := repository.NewRoleRepository()
+	roleService := service.NewRoleService(roleRepository, db, validate)
+	return controller.NewRoleController(roleService)
 }
