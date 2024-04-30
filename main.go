@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/endpoint"
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
+	"minang-kos-service/middleware"
 	"minang-kos-service/repository"
 	"minang-kos-service/service"
 	"net/http"
@@ -33,7 +34,7 @@ func main() {
 func runServer(router *httprouter.Router) {
 	server := http.Server{
 		Addr:    os.Getenv("APP_HOST"),
-		Handler: router,
+		Handler: middleware.NewAuthMiddleware(router),
 	}
 
 	err := server.ListenAndServe()

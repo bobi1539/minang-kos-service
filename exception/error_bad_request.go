@@ -5,5 +5,7 @@ type ErrorBadRequest struct {
 }
 
 func NewErrorBadRequest(err string) ErrorBadRequest {
-	return ErrorBadRequest{Error: err}
+	return ErrorBadRequest{
+		Error: err,
+	}
 }

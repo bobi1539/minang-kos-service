@@ -11,6 +11,12 @@ func WriteSuccessResponse(writer http.ResponseWriter, data any) {
 	WriteToResponseBody(writer, webResponse)
 }
 
+func WriteErrorResponse(writer http.ResponseWriter, code int, message string) {
+	writer.WriteHeader(code)
+	webResponse := BuildErrorResponse(code, message)
+	WriteToResponseBody(writer, webResponse)
+}
+
 func BuildSuccessResponse(data any) response.WebResponse {
 	return response.WebResponse{
 		Code:    200,
@@ -19,23 +25,9 @@ func BuildSuccessResponse(data any) response.WebResponse {
 	}
 }
 
-func BuildInternalServerErrorResponse() response.WebResponse {
+func BuildErrorResponse(code int, message string) response.WebResponse {
 	return response.WebResponse{
-		Code:    http.StatusInternalServerError,
-		Message: constant.INTERNAL_SERVER_ERROR,
-	}
-}
-
-func BuildBadRequestErrorResponse(message string) response.WebResponse {
-	return response.WebResponse{
-		Code:    http.StatusBadRequest,
-		Message: message,
-	}
-}
-
-func BuildValidationErrorResponse(message string) response.WebResponse {
-	return response.WebResponse{
-		Code:    http.StatusBadRequest,
+		Code:    code,
 		Message: message,
 	}
 }

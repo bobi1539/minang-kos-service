@@ -1,6 +1,7 @@
 package exception
 
 import (
+	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"net/http"
 	"runtime/debug"
@@ -26,19 +27,13 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err any) {
 }
 
 func internalServerError(writer http.ResponseWriter, request *http.Request) {
-	writer.WriteHeader(http.StatusInternalServerError)
-
-	webResponse := helper.BuildInternalServerErrorResponse()
-	helper.WriteToResponseBody(writer, webResponse)
+	helper.WriteErrorResponse(writer, http.StatusInternalServerError, constant.INTERNAL_SERVER_ERROR)
 }
 
 func badRequestError(writer http.ResponseWriter, request *http.Request, err any) bool {
 	exception, ok := err.(ErrorBadRequest)
 	if ok {
-		writer.WriteHeader(http.StatusBadRequest)
-
-		webResponse := helper.BuildBadRequestErrorResponse(exception.Error)
-		helper.WriteToResponseBody(writer, webResponse)
+		helper.WriteErrorResponse(writer, http.StatusBadRequest, exception.Error)
 		return true
 	}
 	return false
@@ -47,10 +42,7 @@ func badRequestError(writer http.ResponseWriter, request *http.Request, err any)
 func validationError(writer http.ResponseWriter, request *http.Request, err any) bool {
 	exception, ok := err.(validator.ValidationErrors)
 	if ok {
-		writer.WriteHeader(http.StatusBadRequest)
-
-		webResponse := helper.BuildValidationErrorResponse(exception.Error())
-		helper.WriteToResponseBody(writer, webResponse)
+		helper.WriteErrorResponse(writer, http.StatusBadRequest, exception.Error())
 		return true
 	}
 	return false
