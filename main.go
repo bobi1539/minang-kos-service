@@ -10,6 +10,7 @@ import (
 	"minang-kos-service/repository"
 	"minang-kos-service/service"
 	"net/http"
+	"os"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
@@ -31,7 +32,7 @@ func main() {
 
 func runServer(router *httprouter.Router) {
 	server := http.Server{
-		Addr:    "localhost:3000",
+		Addr:    os.Getenv("APP_HOST"),
 		Handler: router,
 	}
 
