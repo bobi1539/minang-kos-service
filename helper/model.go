@@ -100,3 +100,10 @@ func ToRoleResponses(roles []domain.Role) []response.RoleResponse {
 	}
 	return roleResponses
 }
+
+func ToLoginResponse(token string, expiredAt string) response.AuthLoginResponse {
+	return response.AuthLoginResponse{
+		Token:     token,
+		ExpiredAt: expiredAt,
+	}
+}

@@ -27,6 +27,7 @@ func main() {
 	endpoint.SetCountryEndpoint(router, getCountryController(db, validate))
 	endpoint.SetProvinceEndpoint(router, getProvinceController(db, validate))
 	endpoint.SetRoleEndpoint(router, getRoleController(db, validate))
+	endpoint.SetAuthEndpoint(router, getAuthController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
@@ -43,20 +44,37 @@ func runServer(router *httprouter.Router) {
 }
 
 func getCountryController(db *sql.DB, validate *validator.Validate) controller.CountryController {
-	countryRepository := repository.NewCountryRepository()
-	countryService := service.NewCountryService(countryRepository, db, validate)
+	countryService := service.NewCountryService(getCountryRepository(), db, validate)
 	return controller.NewCountryController(countryService)
 }
 
 func getProvinceController(db *sql.DB, validate *validator.Validate) controller.ProvinceController {
-	provinceRepository := repository.NewProvinceRepository()
-	countryRepository := repository.NewCountryRepository()
-	provinceService := service.NewProvinceService(provinceRepository, countryRepository, db, validate)
+	provinceService := service.NewProvinceService(getProvinceRepository(), getCountryRepository(), db, validate)
 	return controller.NewProvinceController(provinceService)
 }
 
 func getRoleController(db *sql.DB, validate *validator.Validate) controller.CountryController {
-	roleRepository := repository.NewRoleRepository()
-	roleService := service.NewRoleService(roleRepository, db, validate)
+	roleService := service.NewRoleService(getRoleRepository(), db, validate)
 	return controller.NewRoleController(roleService)
+}
+
+func getAuthController(db *sql.DB, validate *validator.Validate) controller.AuthController {
+	authService := service.NewAuthService(getUserRepository(), db, validate)
+	return controller.NewAuthController(authService)
+}
+
+func getCountryRepository() repository.CountryRepository {
+	return repository.NewCountryRepository()
+}
+
+func getProvinceRepository() repository.ProvinceRepository {
+	return repository.NewProvinceRepository()
+}
+
+func getRoleRepository() repository.RoleRepository {
+	return repository.NewRoleRepository()
+}
+
+func getUserRepository() repository.UserRepository {
+	return repository.NewUserRepository()
 }

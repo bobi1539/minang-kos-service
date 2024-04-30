@@ -199,7 +199,8 @@ func scanProvince(rows *sql.Rows, province *domain.Province) {
 		&province.Country.UpdatedAt,
 		&province.Country.UpdatedBy,
 		&province.Country.UpdatedByName,
-		&province.Country.IsDeleted)
+		&province.Country.IsDeleted,
+	)
 	helper.PanicIfError(err)
 }
 

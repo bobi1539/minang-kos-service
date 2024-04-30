@@ -53,3 +53,9 @@ func PanicErrorBadRequest(err error) {
 		panic(NewErrorBadRequest(err.Error()))
 	}
 }
+
+func PanicErrorLogin(err error) {
+	if err != nil {
+		panic(NewErrorBadRequest(constant.WRONG_EMAIL_OR_PASSWORD))
+	}
+}
