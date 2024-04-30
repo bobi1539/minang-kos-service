@@ -55,7 +55,14 @@ func (controller *ProvinceControllerImpl) FindById(writer http.ResponseWriter, h
 }
 
 func (controller *ProvinceControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	searchBy := make(map[string]any)
+	searchBy["name"] = helper.GetQueryParam(httpRequest, PROVINCE_NAME)
+	searchBy["countryId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, COUNTRY_ID))
+	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
+	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+
+	provinceResponses := controller.ProvinceService.FindAllWithPagination(httpRequest.Context(), searchBy)
+	helper.WriteSuccessResponse(writer, provinceResponses)
 }
 
 func (controller *ProvinceControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {

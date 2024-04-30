@@ -66,24 +66,47 @@ func (repository *ProvinceRepositoryImpl) FindById(ctx context.Context, tx *sql.
 }
 
 func (repository *ProvinceRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	panic("imp")
+	name := searchBy["name"].(string)
+	countryId := searchBy["countryId"].(int64)
+	page := searchBy["page"].(int)
+	size := searchBy["size"].(int)
+
+	page = helper.GetSqlOffset(page, size)
+
+	sqlSearch, args := sqlSearchByProvince(name, countryId)
+	sqlQuery := sqlSelectProvince() + sqlSearch + " ORDER BY mp.id ASC LIMIT ? OFFSET ?"
+	args = append(args, size, page)
+
+	rows := FetchRows(ctx, tx, sqlQuery, args)
+	defer rows.Close()
+
+	return getProvinces(rows)
 }
 
 func (repository *ProvinceRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
 	name := searchBy["name"].(string)
 	countryId := searchBy["countryId"].(int64)
 
-	sqlQuery := sqlSelectProvince() + sqlSearchByProvince(name)
-	sqlQuery += " AND mp.country_id = ? ORDER BY mp.id ASC"
+	sqlSearch, args := sqlSearchByProvince(name, countryId)
+	sqlQuery := sqlSelectProvince() + sqlSearch + " ORDER BY mp.id ASC"
 
-	rows := fetchRowsProvince(ctx, tx, sqlQuery, name, countryId)
+	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
 
 	return getProvinces(rows)
 }
 
 func (repository *ProvinceRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	panic("imp")
+	name := searchBy["name"].(string)
+	countryId := searchBy["countryId"].(int64)
+
+	sqlSearch, args := sqlSearchByProvince(name, countryId)
+	sqlQuery := sqlFindTotalProvince() + sqlSearch
+
+	rows := FetchRows(ctx, tx, sqlQuery, args)
+	defer rows.Close()
+
+	return ScanTotalItem(rows)
 }
 
 func sqlSaveProvince() string {
@@ -137,11 +160,24 @@ func sqlSelectProvince() string {
 		" WHERE mp.is_deleted = false"
 }
 
-func sqlSearchByProvince(name string) string {
+func sqlFindTotalProvince() string {
+	return "SELECT COUNT(1) AS totalItem FROM m_province mp WHERE mp.is_deleted = false"
+}
+
+func sqlSearchByProvince(name string, countryId int64) (string, []any) {
+	var args []any
+	sqlQuery := ""
+
 	if len(name) != 0 {
-		return " AND LOWER(mp.name) LIKE ?"
+		sqlQuery += " AND LOWER(mp.name) LIKE ?"
+		args = append(args, helper.StringQueryLike(name))
 	}
-	return ""
+
+	if countryId != 0 {
+		sqlQuery += " AND mp.country_id = ?"
+		args = append(args, countryId)
+	}
+	return sqlQuery, args
 }
 
 func scanProvince(rows *sql.Rows, province *domain.Province) {
@@ -165,18 +201,6 @@ func scanProvince(rows *sql.Rows, province *domain.Province) {
 		&province.Country.UpdatedByName,
 		&province.Country.IsDeleted)
 	helper.PanicIfError(err)
-}
-
-func fetchRowsProvince(ctx context.Context, tx *sql.Tx, sqlQuery string, name string, countryId int64) *sql.Rows {
-	if len(name) != 0 {
-		rows, err := tx.QueryContext(ctx, sqlQuery, helper.StringQueryLike(name), countryId)
-		helper.PanicIfError(err)
-		return rows
-	}
-
-	rows, err := tx.QueryContext(ctx, sqlQuery, countryId)
-	helper.PanicIfError(err)
-	return rows
 }
 
 func getProvinces(rows *sql.Rows) []domain.Province {

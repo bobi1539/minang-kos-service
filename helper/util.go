@@ -20,6 +20,10 @@ func StringToInt(value string) int {
 }
 
 func StringToInt64(value string) int64 {
+	if len(value) == 0 {
+		return 0
+	}
+
 	intValue, err := strconv.Atoi(value)
 	PanicIfError(err)
 	return int64(intValue)
