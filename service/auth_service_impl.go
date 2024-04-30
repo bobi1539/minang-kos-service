@@ -10,6 +10,7 @@ import (
 	"minang-kos-service/repository"
 
 	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthServiceImpl struct {
@@ -36,6 +37,8 @@ func (service *AuthServiceImpl) Login(ctx context.Context, request request.AuthL
 	user, err := service.UserRepository.FindByEmail(ctx, tx, request.Email)
 	exception.PanicErrorLogin(err)
 
+	service.validatePassword(user.Password, request.Password)
+
 	return helper.ToLoginResponse(user.Email, "hehe")
 }
 
@@ -43,4 +46,11 @@ func (service *AuthServiceImpl) beginTransaction() *sql.Tx {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	return tx
+}
+
+func (service *AuthServiceImpl) validatePassword(hashPassword string, password string) {
+	err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
+	if err != nil {
+		exception.PanicErrorLogin(err)
+	}
 }
