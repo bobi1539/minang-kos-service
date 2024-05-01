@@ -8,7 +8,6 @@ import (
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
 	"minang-kos-service/repository"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -43,7 +42,7 @@ func (service *ProvinceServiceImpl) Create(ctx context.Context, webRequest any) 
 	province := domain.Province{
 		Name:       provinceRequest.Name,
 		Country:    country,
-		BaseDomain: helper.BuildBaseDomain(),
+		BaseDomain: helper.BuildBaseDomain(ctx),
 	}
 	province = service.ProvinceRepository.Save(ctx, tx, province).(domain.Province)
 	return helper.ToProvinceResponse(province)
@@ -61,9 +60,7 @@ func (service *ProvinceServiceImpl) Update(ctx context.Context, webRequest any) 
 	province := service.findProvinceById(ctx, tx, provinceRequest.Id)
 	province.Name = provinceRequest.Name
 	province.Country = country
-	province.UpdatedAt = time.Now()
-	province.UpdatedBy = 2
-	province.UpdatedByName = "ucup"
+	helper.SetUpdatedBy(ctx, &province.BaseDomain)
 
 	province = service.ProvinceRepository.Update(ctx, tx, province).(domain.Province)
 	return helper.ToProvinceResponse(province)
@@ -74,9 +71,7 @@ func (service *ProvinceServiceImpl) Delete(ctx context.Context, id int64) {
 	defer helper.CommitOrRollback(tx)
 
 	province := service.findProvinceById(ctx, tx, id)
-	province.UpdatedAt = time.Now()
-	province.UpdatedBy = 2
-	province.UpdatedByName = "Tono"
+	helper.SetUpdatedBy(ctx, &province.BaseDomain)
 	province.IsDeleted = true
 	service.ProvinceRepository.Delete(ctx, tx, province)
 }

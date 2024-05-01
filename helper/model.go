@@ -1,20 +1,44 @@
 package helper
 
 import (
+	"context"
+	"minang-kos-service/constant"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/dto"
 	"minang-kos-service/model/web/response"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
-func BuildBaseDomain() domain.BaseDomain {
+func BuildBaseDomain(ctx context.Context) domain.BaseDomain {
+	userInfo := GetUserInfo(ctx)
+
 	return domain.BaseDomain{
 		CreatedAt:     time.Now(),
-		CreatedBy:     1,
-		CreatedByName: "test",
+		CreatedBy:     userInfo.UserId,
+		CreatedByName: userInfo.Name,
 		UpdatedAt:     time.Now(),
-		UpdatedBy:     1,
-		UpdatedByName: "test",
+		UpdatedBy:     userInfo.UserId,
+		UpdatedByName: userInfo.Name,
 		IsDeleted:     false,
+	}
+}
+
+func SetUpdatedBy(ctx context.Context, baseDomain *domain.BaseDomain) {
+	userInfo := GetUserInfo(ctx)
+
+	baseDomain.UpdatedAt = time.Now()
+	baseDomain.UpdatedBy = userInfo.UserId
+	baseDomain.UpdatedByName = userInfo.Name
+}
+
+func GetUserInfo(ctx context.Context) dto.UserInfo {
+	user := ctx.Value(constant.KeyContext(constant.USER_INFO)).(jwt.MapClaims)
+	return dto.UserInfo{
+		UserId: int64(user["userId"].(float64)),
+		Email:  user["email"].(string),
+		Name:   user["name"].(string),
 	}
 }
 

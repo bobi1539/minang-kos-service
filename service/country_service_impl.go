@@ -8,7 +8,6 @@ import (
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
 	"minang-kos-service/repository"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -37,7 +36,7 @@ func (service *CountryServiceImpl) Create(ctx context.Context, webRequest any) a
 
 	country := domain.Country{
 		Name:       countryRequest.Name,
-		BaseDomain: helper.BuildBaseDomain(),
+		BaseDomain: helper.BuildBaseDomain(ctx),
 	}
 
 	country = service.CountryRepository.Save(ctx, tx, country).(domain.Country)
@@ -55,9 +54,7 @@ func (service *CountryServiceImpl) Update(ctx context.Context, webRequest any) a
 
 	country := service.findCountryById(ctx, tx, countryRequest.Id)
 	country.Name = countryRequest.Name
-	country.UpdatedAt = time.Now()
-	country.UpdatedBy = 10
-	country.UpdatedByName = "ucup"
+	helper.SetUpdatedBy(ctx, &country.BaseDomain)
 
 	country = service.CountryRepository.Update(ctx, tx, country).(domain.Country)
 
@@ -69,9 +66,7 @@ func (service *CountryServiceImpl) Delete(ctx context.Context, id int64) {
 	defer helper.CommitOrRollback(tx)
 
 	country := service.findCountryById(ctx, tx, id)
-	country.UpdatedAt = time.Now()
-	country.UpdatedBy = 12
-	country.UpdatedByName = "tono"
+	helper.SetUpdatedBy(ctx, &country.BaseDomain)
 	country.IsDeleted = true
 
 	service.CountryRepository.Delete(ctx, tx, country)
