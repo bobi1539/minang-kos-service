@@ -67,6 +67,24 @@ CREATE TABLE `m_district` (
   CONSTRAINT `district_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `m_city` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- minang_kos.m_village definition
+
+CREATE TABLE `m_village` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `district_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `created_by_name` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by_name` varchar(255) DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `village_district_id_foreign` (`district_id`),
+  CONSTRAINT `village_district_id_foreign` FOREIGN KEY (`district_id`) REFERENCES `m_district` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- minang_kos.m_role definition
 
 CREATE TABLE `m_role` (

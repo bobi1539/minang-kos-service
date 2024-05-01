@@ -28,6 +28,7 @@ func main() {
 	endpoint.SetProvinceEndpoint(router, getProvinceController(db, validate))
 	endpoint.SetCityEndpoint(router, getCityController(db, validate))
 	endpoint.SetDistrictEndpoint(router, getDistrictController(db, validate))
+	endpoint.SetVillageEndpoint(router, getVillageController(db, validate))
 	endpoint.SetRoleEndpoint(router, getRoleController(db, validate))
 	endpoint.SetAuthEndpoint(router, getAuthController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
@@ -75,6 +76,11 @@ func getDistrictController(db *sql.DB, validate *validator.Validate) controller.
 	return controller.NewDistrictController(districtService)
 }
 
+func getVillageController(db *sql.DB, validate *validator.Validate) controller.VillageController {
+	villageService := service.NewVillageService(getVillageRepository(), getDistrictRepository(), db, validate)
+	return controller.NewVillageController(villageService)
+}
+
 func getCountryRepository() repository.CountryRepository {
 	return repository.NewCountryRepository()
 }
@@ -97,4 +103,8 @@ func getRoleRepository() repository.RoleRepository {
 
 func getUserRepository() repository.UserRepository {
 	return repository.NewUserRepository()
+}
+
+func getVillageRepository() repository.VillageRepository {
+	return repository.NewVillageRepository()
 }

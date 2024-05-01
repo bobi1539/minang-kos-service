@@ -147,6 +147,27 @@ func ToDistrictResponses(districts []domain.District) []response.DistrictRespons
 	return districtResponses
 }
 
+func ToVillageResponse(village domain.Village) response.VillageResponse {
+	return response.VillageResponse{
+		Id:                 village.Id,
+		Name:               village.Name,
+		District:           ToDistrictResponse(village.District),
+		BaseDomainResponse: ToBaseDomainResponse(village.BaseDomain),
+	}
+}
+
+func ToVillageResponses(villages []domain.Village) []response.VillageResponse {
+	if villages == nil {
+		return make([]response.VillageResponse, 0)
+	}
+
+	var villageResponses []response.VillageResponse
+	for _, village := range villages {
+		villageResponses = append(villageResponses, ToVillageResponse(village))
+	}
+	return villageResponses
+}
+
 func ToRoleResponse(role domain.Role) response.RoleResponse {
 	return response.RoleResponse{
 		Id:                 role.Id,
