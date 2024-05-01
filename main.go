@@ -26,6 +26,7 @@ func main() {
 	router := httprouter.New()
 	endpoint.SetCountryEndpoint(router, getCountryController(db, validate))
 	endpoint.SetProvinceEndpoint(router, getProvinceController(db, validate))
+	endpoint.SetCityEndpoint(router, getCityController(db, validate))
 	endpoint.SetRoleEndpoint(router, getRoleController(db, validate))
 	endpoint.SetAuthEndpoint(router, getAuthController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
@@ -63,12 +64,21 @@ func getAuthController(db *sql.DB, validate *validator.Validate) controller.Auth
 	return controller.NewAuthController(authService)
 }
 
+func getCityController(db *sql.DB, validate *validator.Validate) controller.CityController {
+	cityService := service.NewCityService(getCityRepository(), getProvinceRepository(), db, *validate)
+	return controller.NewCityController(cityService)
+}
+
 func getCountryRepository() repository.CountryRepository {
 	return repository.NewCountryRepository()
 }
 
 func getProvinceRepository() repository.ProvinceRepository {
 	return repository.NewProvinceRepository()
+}
+
+func getCityRepository() repository.CityRepository {
+	return repository.NewCityRepository()
 }
 
 func getRoleRepository() repository.RoleRepository {

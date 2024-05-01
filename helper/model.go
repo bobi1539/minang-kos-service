@@ -105,6 +105,27 @@ func ToProvinceResponses(provinces []domain.Province) []response.ProvinceRespons
 	return provinceResponses
 }
 
+func ToCityResponse(city domain.City) response.CityResponse {
+	return response.CityResponse{
+		Id:                 city.Id,
+		Name:               city.Name,
+		Province:           ToProvinceResponse(city.Province),
+		BaseDomainResponse: ToBaseDomainResponse(city.BaseDomain),
+	}
+}
+
+func ToCityResponses(cities []domain.City) []response.CityResponse {
+	if cities == nil {
+		return make([]response.CityResponse, 0)
+	}
+
+	var cityResponses []response.CityResponse
+	for _, city := range cities {
+		cityResponses = append(cityResponses, ToCityResponse(city))
+	}
+	return cityResponses
+}
+
 func ToRoleResponse(role domain.Role) response.RoleResponse {
 	return response.RoleResponse{
 		Id:                 role.Id,
