@@ -16,11 +16,11 @@ type CityServiceImpl struct {
 	CityRepository     repository.CityRepository
 	ProvinceRepository repository.ProvinceRepository
 	DB                 *sql.DB
-	Validate           validator.Validate
+	Validate           *validator.Validate
 }
 
 func NewCityService(
-	cityRepository repository.CityRepository, provinceRepository repository.ProvinceRepository, DB *sql.DB, validate validator.Validate,
+	cityRepository repository.CityRepository, provinceRepository repository.ProvinceRepository, DB *sql.DB, validate *validator.Validate,
 ) CityService {
 	return &CityServiceImpl{
 		CityRepository:     cityRepository,

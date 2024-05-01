@@ -7,3 +7,4 @@ const COUNTRY_ID_REQUIRED = "country id is required | country id tidak boleh kos
 const UNAUTHORIZED = "unauthorized | unauthorized"
 const WRONG_EMAIL_OR_PASSWORD = "wrong email or password | email atau password salah"
 const PROVINCE_ID_REQUIRED = "province id is required | province id tidak boleh kosong"
+const CITY_ID_REQUIRED = "city id is required | city id tidak boleh kosong"
