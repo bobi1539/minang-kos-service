@@ -12,6 +12,11 @@
         "tags": ["Auth API"],
         "description": "Login api",
         "summary": "Login api",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -74,6 +79,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -143,6 +151,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -247,6 +258,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "requestBody": {
@@ -311,6 +325,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -376,6 +393,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -449,6 +469,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -504,6 +527,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -582,6 +608,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -695,6 +724,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "requestBody": {
@@ -759,6 +791,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -824,6 +859,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -897,6 +935,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -952,6 +993,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1030,6 +1074,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1143,6 +1190,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "requestBody": {
@@ -1207,6 +1257,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1272,6 +1325,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1345,6 +1401,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1400,6 +1459,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1478,6 +1540,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1591,6 +1656,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "requestBody": {
@@ -1655,6 +1723,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1720,6 +1791,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1793,6 +1867,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1848,6 +1925,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -1926,6 +2006,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2039,6 +2122,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "requestBody": {
@@ -2103,6 +2189,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2168,6 +2257,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2241,6 +2333,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2296,6 +2391,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2365,6 +2463,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2469,6 +2570,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "requestBody": {
@@ -2533,6 +2637,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2598,6 +2705,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2671,6 +2781,9 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
           }
         ],
         "parameters": [
@@ -2717,6 +2830,454 @@
           }
         }
       }
+    },
+    "/kos-types/all": {
+      "get": {
+        "tags": ["Kos Type API"],
+        "description": "List all kos type without pagination",
+        "summary": "List all kos type without pagination",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Kos type Name",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success list kos type without pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/KosType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/kos-types": {
+      "get": {
+        "tags": ["Kos Type API"],
+        "description": "List all kos type with pagination",
+        "summary": "List all kos type with pagination",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Kos Type Name",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page Number",
+            "schema": {
+              "type": "number",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Size Item",
+            "schema": {
+              "type": "number",
+              "default": 10
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success list all kos type with pagination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "number"
+                        },
+                        "size": {
+                          "type": "number"
+                        },
+                        "totalPage": {
+                          "type": "number"
+                        },
+                        "totalItem": {
+                          "type": "number"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/KosType"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Kos Type API"],
+        "description": "Create new kos type",
+        "summary": "Create new kos type",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateKosType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/KosType"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/kos-types/kos-type/{kosTypeId}": {
+      "get": {
+        "tags": ["Kos Type API"],
+        "description": "Get kos type by id",
+        "summary": "Get kos type by id",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "kosTypeId",
+            "in": "path",
+            "description": "Kos Type Id",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get kos type by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/KosType"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Kos Type API"],
+        "description": "Update kos type by id",
+        "summary": "Update kos type by id",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "kosTypeId",
+            "in": "path",
+            "description": "Kos Type Id",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateKosType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success update kos type by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/KosType"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Kos Type API"],
+        "description": "Delete kos type by id",
+        "summary": "Delete kos type by id",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "kosTypeId",
+            "in": "path",
+            "description": "Kos Type Id",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete kos type by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2724,7 +3285,14 @@
       "BearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "Jwt Token Authoriztion"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Api Key Authorization"
       }
     },
     "schemas": {
@@ -3020,6 +3588,45 @@
           },
           "expiredAt": {
             "type": "number"
+          }
+        }
+      },
+      "KosType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "createdByName": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "updatedByName": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateOrUpdateKosType": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           }
         }
       }
