@@ -146,6 +146,17 @@ func sqlFindTotalRole() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_role WHERE is_deleted = false"
 }
 
+func sqlSearchByRole(name string) (string, []any) {
+	var args []any
+	sqlQuery := ""
+
+	if len(name) != 0 {
+		sqlQuery += " AND LOWER(name) LIKE ?"
+		args = append(args, helper.StringQueryLike(name))
+	}
+	return sqlQuery, args
+}
+
 func getRoles(rows *sql.Rows) []domain.Role {
 	var roles []domain.Role
 	for rows.Next() {
@@ -169,15 +180,4 @@ func scanRole(rows *sql.Rows, role *domain.Role) {
 		&role.IsDeleted,
 	)
 	helper.PanicIfError(err)
-}
-
-func sqlSearchByRole(name string) (string, []any) {
-	var args []any
-	sqlQuery := ""
-
-	if len(name) != 0 {
-		sqlQuery += " AND LOWER(name) LIKE ?"
-		args = append(args, helper.StringQueryLike(name))
-	}
-	return sqlQuery, args
 }

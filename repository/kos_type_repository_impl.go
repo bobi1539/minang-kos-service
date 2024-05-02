@@ -169,7 +169,16 @@ func getKosTypes(rows *sql.Rows) []domain.KosType {
 }
 
 func scanKosType(rows *sql.Rows, kosType *domain.KosType) {
-	err := rows.Scan(&kosType.Id, &kosType.Name, &kosType.CreatedAt, &kosType.CreatedBy, &kosType.CreatedByName,
-		&kosType.UpdatedAt, &kosType.UpdatedBy, &kosType.UpdatedByName, &kosType.IsDeleted)
+	err := rows.Scan(
+		&kosType.Id,
+		&kosType.Name,
+		&kosType.CreatedAt,
+		&kosType.CreatedBy,
+		&kosType.CreatedByName,
+		&kosType.UpdatedAt,
+		&kosType.UpdatedBy,
+		&kosType.UpdatedByName,
+		&kosType.IsDeleted,
+	)
 	helper.PanicIfError(err)
 }

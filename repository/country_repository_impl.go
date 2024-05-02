@@ -103,22 +103,6 @@ func (repository *CountryRepositoryImpl) FindTotalItem(ctx context.Context, tx *
 	return ScanTotalItem(rows)
 }
 
-func getCountries(rows *sql.Rows) []domain.Country {
-	var countries []domain.Country
-	for rows.Next() {
-		country := domain.Country{}
-		scanCountry(rows, &country)
-		countries = append(countries, country)
-	}
-	return countries
-}
-
-func scanCountry(rows *sql.Rows, country *domain.Country) {
-	err := rows.Scan(&country.Id, &country.Name, &country.CreatedAt, &country.CreatedBy, &country.CreatedByName,
-		&country.UpdatedAt, &country.UpdatedBy, &country.UpdatedByName, &country.IsDeleted)
-	helper.PanicIfError(err)
-}
-
 func sqlSaveCountry() string {
 	return "INSERT INTO m_country(name," +
 		" created_at," +
@@ -172,4 +156,29 @@ func sqlSearchByCountry(name string) (string, []any) {
 		args = append(args, helper.StringQueryLike(name))
 	}
 	return sqlQuery, args
+}
+
+func getCountries(rows *sql.Rows) []domain.Country {
+	var countries []domain.Country
+	for rows.Next() {
+		country := domain.Country{}
+		scanCountry(rows, &country)
+		countries = append(countries, country)
+	}
+	return countries
+}
+
+func scanCountry(rows *sql.Rows, country *domain.Country) {
+	err := rows.Scan(
+		&country.Id,
+		&country.Name,
+		&country.CreatedAt,
+		&country.CreatedBy,
+		&country.CreatedByName,
+		&country.UpdatedAt,
+		&country.UpdatedBy,
+		&country.UpdatedByName,
+		&country.IsDeleted,
+	)
+	helper.PanicIfError(err)
 }

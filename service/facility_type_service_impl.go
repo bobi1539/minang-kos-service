@@ -15,10 +15,10 @@ import (
 type FacilityTypeServiceImpl struct {
 	FacilityTypeRepository repository.FacilityTypeRepository
 	DB                     *sql.DB
-	Validate               validator.Validate
+	Validate               *validator.Validate
 }
 
-func NewFacilityTypeService(facilityTypeRepository repository.FacilityTypeRepository, DB *sql.DB, validate validator.Validate) FacilityTypeService {
+func NewFacilityTypeService(facilityTypeRepository repository.FacilityTypeRepository, DB *sql.DB, validate *validator.Validate) FacilityTypeService {
 	return &FacilityTypeServiceImpl{
 		FacilityTypeRepository: facilityTypeRepository,
 		DB:                     DB,

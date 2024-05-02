@@ -234,3 +234,24 @@ func ToFacilityTypeResponses(facilityTypes []domain.FacilityType) []response.Fac
 	}
 	return facilityTypeResponses
 }
+
+func ToFacilityResponse(facility domain.Facility) response.FacilityResponse {
+	return response.FacilityResponse{
+		Id:                 facility.Id,
+		Name:               facility.Name,
+		FacilityType:       ToFacilityTypeResponse(facility.FacilityType),
+		BaseDomainResponse: ToBaseDomainResponse(facility.BaseDomain),
+	}
+}
+
+func ToFacilityResponses(facilities []domain.Facility) []response.FacilityResponse {
+	if facilities == nil {
+		return make([]response.FacilityResponse, 0)
+	}
+
+	var facilityResponses []response.FacilityResponse
+	for _, facility := range facilities {
+		facilityResponses = append(facilityResponses, ToFacilityResponse(facility))
+	}
+	return facilityResponses
+}

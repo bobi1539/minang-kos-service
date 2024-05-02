@@ -33,6 +33,7 @@ func main() {
 	endpoint.SetAuthEndpoint(router, getAuthController(db, validate))
 	endpoint.SetKosTypeEndpoint(router, getKosTypeController(db, validate))
 	endpoint.SetFacilityTypeEndpoint(router, getFacilityTypeController(db, validate))
+	endpoint.SetFacilityEndpoint(router, getFacilityController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
@@ -89,8 +90,13 @@ func getKosTypeController(db *sql.DB, validate *validator.Validate) controller.K
 }
 
 func getFacilityTypeController(db *sql.DB, validate *validator.Validate) controller.FacilityTypeController {
-	facilityTypeService := service.NewFacilityTypeService(getFacilityTypeRepository(), db, *validate)
+	facilityTypeService := service.NewFacilityTypeService(getFacilityTypeRepository(), db, validate)
 	return controller.NewFacilityTypeController(facilityTypeService)
+}
+
+func getFacilityController(db *sql.DB, validate *validator.Validate) controller.FacilityController {
+	facilityService := service.NewFacilityService(getFacilityRepository(), getFacilityTypeRepository(), db, validate)
+	return controller.NewFacilityController(facilityService)
 }
 
 func getCountryRepository() repository.CountryRepository {
@@ -127,4 +133,8 @@ func getKosTypeRepository() repository.KosTypeRepository {
 
 func getFacilityTypeRepository() repository.FacilityTypeRepository {
 	return repository.NewFacilityTypeRepository()
+}
+
+func getFacilityRepository() repository.FacilityRepository {
+	return repository.NewFacilityRepository()
 }

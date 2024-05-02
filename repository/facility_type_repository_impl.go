@@ -169,7 +169,16 @@ func getFacilityTypes(rows *sql.Rows) []domain.FacilityType {
 }
 
 func scanFacilityType(rows *sql.Rows, facilityType *domain.FacilityType) {
-	err := rows.Scan(&facilityType.Id, &facilityType.Name, &facilityType.CreatedAt, &facilityType.CreatedBy, &facilityType.CreatedByName,
-		&facilityType.UpdatedAt, &facilityType.UpdatedBy, &facilityType.UpdatedByName, &facilityType.IsDeleted)
+	err := rows.Scan(
+		&facilityType.Id,
+		&facilityType.Name,
+		&facilityType.CreatedAt,
+		&facilityType.CreatedBy,
+		&facilityType.CreatedByName,
+		&facilityType.UpdatedAt,
+		&facilityType.UpdatedBy,
+		&facilityType.UpdatedByName,
+		&facilityType.IsDeleted,
+	)
 	helper.PanicIfError(err)
 }
