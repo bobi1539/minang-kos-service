@@ -6,6 +6,7 @@ import (
 	"minang-kos-service/endpoint"
 	"minang-kos-service/helper"
 	"net/http"
+	"os"
 	"runtime/debug"
 	"strings"
 )
@@ -21,6 +22,11 @@ func NewAuthMiddleware(handler http.Handler) *AuthMiddleware {
 }
 
 func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if !isApiKeyValid(request) {
+		helper.WriteErrorResponse(writer, http.StatusUnauthorized, constant.UNAUTHORIZED)
+		return
+	}
+
 	path := request.URL.Path
 	if strings.Contains(path, endpoint.AUTH) {
 		middleware.Handler.ServeHTTP(writer, request)
@@ -47,4 +53,10 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 	request = request.WithContext(ctx)
 
 	middleware.Handler.ServeHTTP(writer, request)
+}
+
+func isApiKeyValid(request *http.Request) bool {
+	secretApiKey := os.Getenv("API_KEY")
+	apiKey := request.Header.Get(constant.X_API_KEY)
+	return apiKey == secretApiKey
 }

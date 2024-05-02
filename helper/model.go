@@ -194,3 +194,23 @@ func ToLoginResponse(token string, expiredAt int64) response.AuthLoginResponse {
 		ExpiredAt: expiredAt,
 	}
 }
+
+func ToKosTypeResponse(kosType domain.KosType) response.KosTypeResponse {
+	return response.KosTypeResponse{
+		Id:                 kosType.Id,
+		Name:               kosType.Name,
+		BaseDomainResponse: ToBaseDomainResponse(kosType.BaseDomain),
+	}
+}
+
+func ToKosTypeResponses(kosTypes []domain.KosType) []response.KosTypeResponse {
+	if kosTypes == nil {
+		return make([]response.KosTypeResponse, 0)
+	}
+
+	var kosTypeResponses []response.KosTypeResponse
+	for _, kosType := range kosTypes {
+		kosTypeResponses = append(kosTypeResponses, ToKosTypeResponse(kosType))
+	}
+	return kosTypeResponses
+}

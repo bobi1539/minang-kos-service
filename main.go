@@ -31,6 +31,7 @@ func main() {
 	endpoint.SetVillageEndpoint(router, getVillageController(db, validate))
 	endpoint.SetRoleEndpoint(router, getRoleController(db, validate))
 	endpoint.SetAuthEndpoint(router, getAuthController(db, validate))
+	endpoint.SetKosTypeEndpoint(router, getKosTypeController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
@@ -81,6 +82,11 @@ func getVillageController(db *sql.DB, validate *validator.Validate) controller.V
 	return controller.NewVillageController(villageService)
 }
 
+func getKosTypeController(db *sql.DB, validate *validator.Validate) controller.KosTypeController {
+	kosTypeService := service.NewKosTypeService(getKosTypeRepository(), db, validate)
+	return controller.NewKosTypeController(kosTypeService)
+}
+
 func getCountryRepository() repository.CountryRepository {
 	return repository.NewCountryRepository()
 }
@@ -107,4 +113,8 @@ func getUserRepository() repository.UserRepository {
 
 func getVillageRepository() repository.VillageRepository {
 	return repository.NewVillageRepository()
+}
+
+func getKosTypeRepository() repository.KosTypeRepository {
+	return repository.NewKosTypeRepository()
 }
