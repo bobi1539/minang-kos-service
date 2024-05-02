@@ -214,3 +214,23 @@ func ToKosTypeResponses(kosTypes []domain.KosType) []response.KosTypeResponse {
 	}
 	return kosTypeResponses
 }
+
+func ToFacilityTypeResponse(facilityType domain.FacilityType) response.FacilityTypeResponse {
+	return response.FacilityTypeResponse{
+		Id:                 facilityType.Id,
+		Name:               facilityType.Name,
+		BaseDomainResponse: ToBaseDomainResponse(facilityType.BaseDomain),
+	}
+}
+
+func ToFacilityTypeResponses(facilityTypes []domain.FacilityType) []response.FacilityTypeResponse {
+	if facilityTypes == nil {
+		return make([]response.FacilityTypeResponse, 0)
+	}
+
+	var facilityTypeResponses []response.FacilityTypeResponse
+	for _, facilityType := range facilityTypes {
+		facilityTypeResponses = append(facilityTypeResponses, ToFacilityTypeResponse(facilityType))
+	}
+	return facilityTypeResponses
+}

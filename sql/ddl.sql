@@ -135,3 +135,18 @@ CREATE TABLE `m_kos_type` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- minang_kos.m_facility_type definition
+
+CREATE TABLE `m_facility_type` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `created_by_name` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by_name` varchar(255) DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

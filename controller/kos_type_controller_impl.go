@@ -30,6 +30,7 @@ func (controller *KosTypeControllerImpl) Create(writer http.ResponseWriter, http
 	kosTypeResponse := controller.KosTypeService.Create(httpRequest.Context(), kosTypeRequest)
 	helper.WriteSuccessResponse(writer, kosTypeResponse)
 }
+
 func (controller *KosTypeControllerImpl) Update(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
 	kosTypeRequest := request.KosTypeUpdateRequest{}
 	helper.ReadFromRequestBody(httpRequest, &kosTypeRequest)
@@ -38,16 +39,19 @@ func (controller *KosTypeControllerImpl) Update(writer http.ResponseWriter, http
 	kosTypeResponse := controller.KosTypeService.Update(httpRequest.Context(), kosTypeRequest)
 	helper.WriteSuccessResponse(writer, kosTypeResponse)
 }
+
 func (controller *KosTypeControllerImpl) Delete(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
 	kosTypeId := helper.GetIdFromPath(params, KOS_TYPE_ID)
 	controller.KosTypeService.Delete(httpRequest.Context(), kosTypeId)
 	helper.WriteSuccessResponse(writer, nil)
 }
+
 func (controller *KosTypeControllerImpl) FindById(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
 	kosTypeId := helper.GetIdFromPath(params, KOS_TYPE_ID)
 	kosTypeResponse := controller.KosTypeService.FindById(httpRequest.Context(), kosTypeId)
 	helper.WriteSuccessResponse(writer, kosTypeResponse)
 }
+
 func (controller *KosTypeControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
 	searchBy := make(map[string]any)
 	searchBy["name"] = helper.GetQueryParam(httpRequest, KOS_TYPE_NAME)
@@ -57,6 +61,7 @@ func (controller *KosTypeControllerImpl) FindAllWithPagination(writer http.Respo
 	kosTypeResponses := controller.KosTypeService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, kosTypeResponses)
 }
+
 func (controller *KosTypeControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
 	searchBy := make(map[string]any)
 	searchBy["name"] = helper.GetQueryParam(httpRequest, KOS_TYPE_NAME)
