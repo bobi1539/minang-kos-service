@@ -74,8 +74,8 @@ func (service *KosBedroomServiceImpl) Create(ctx context.Context, webRequest any
 	}
 
 	kosBedroom = service.KosBedroomRepository.Save(ctx, tx, kosBedroom).(domain.KosBedroom)
-	service.createKosFacility(ctx, tx, kosBedroom, kosBedroomRequest.FacilityIds)
-	return helper.ToKosBedroomResponse(kosBedroom)
+	facilities, facilityTypes := service.createKosFacility(ctx, tx, kosBedroom, kosBedroomRequest.FacilityIds)
+	return helper.ToKosBedroomResponse(kosBedroom, facilityTypes, facilities)
 }
 
 func (service *KosBedroomServiceImpl) Update(ctx context.Context, webRequest any) any {
@@ -130,7 +130,10 @@ func (service *KosBedroomServiceImpl) findFacilityById(ctx context.Context, tx *
 
 func (service *KosBedroomServiceImpl) createKosFacility(
 	ctx context.Context, tx *sql.Tx, kosBedroom domain.KosBedroom, facilityIds []int64,
-) {
+) ([]domain.Facility, []domain.FacilityType) {
+	var facilities []domain.Facility
+	var facilityTypes []domain.FacilityType
+
 	for _, facilityId := range facilityIds {
 		facility := service.findFacilityById(ctx, tx, facilityId)
 		kosFacility := domain.KosFacility{
@@ -138,5 +141,20 @@ func (service *KosBedroomServiceImpl) createKosFacility(
 			Facility:   facility,
 		}
 		service.KosFacilityRepository.Save(ctx, tx, kosFacility)
+		facilities = append(facilities, facility)
+
+		if !service.isFacilityTypeExist(facility.FacilityType, facilityTypes) {
+			facilityTypes = append(facilityTypes, facility.FacilityType)
+		}
 	}
+	return facilities, facilityTypes
+}
+
+func (service *KosBedroomServiceImpl) isFacilityTypeExist(facilityType domain.FacilityType, facilityTypes []domain.FacilityType) bool {
+	for _, ft := range facilityTypes {
+		if ft.Id == facilityType.Id {
+			return true
+		}
+	}
+	return false
 }

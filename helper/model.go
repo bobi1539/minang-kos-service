@@ -267,9 +267,13 @@ func ToUserResponse(user domain.User) response.UserResponse {
 	}
 }
 
-func ToKosBedroomResponse(kosBedroom domain.KosBedroom) response.KosBedroomResponse {
+func ToKosBedroomResponse(
+	kosBedroom domain.KosBedroom,
+	facilityTypes []domain.FacilityType,
+	facilities []domain.Facility,
+) response.KosBedroomResponse {
 	return response.KosBedroomResponse{
-		Id:                   kosBedroom.CreatedBy,
+		Id:                   kosBedroom.Id,
 		Title:                kosBedroom.Title,
 		RoomLength:           kosBedroom.RoomLength,
 		RoomWidth:            kosBedroom.RoomWidth,
@@ -280,6 +284,36 @@ func ToKosBedroomResponse(kosBedroom domain.KosBedroom) response.KosBedroomRespo
 		KosType:              ToKosTypeResponse(kosBedroom.KosType),
 		Village:              ToVillageResponse(kosBedroom.Village),
 		User:                 ToUserResponse(kosBedroom.User),
+		FacilityTypes:        ToFacilityTypeWithFacilityResponses(facilityTypes, facilities),
 		BaseDomainResponse:   ToBaseDomainResponse(kosBedroom.BaseDomain),
 	}
+}
+
+func ToFacilityTypeWithFacilityResponse(facilityType domain.FacilityType, facilities []domain.Facility) response.FacilityTypeWithFacilityResponse {
+	var facilityResponses []response.FacilityResponse
+
+	for _, facility := range facilities {
+		if facility.FacilityType.Id == facilityType.Id {
+			facilityResponses = append(facilityResponses, ToFacilityResponse(facility))
+		}
+	}
+
+	return response.FacilityTypeWithFacilityResponse{
+		Id:         facilityType.Id,
+		Name:       facilityType.Name,
+		Facilities: facilityResponses,
+	}
+}
+
+func ToFacilityTypeWithFacilityResponses(facilityTypes []domain.FacilityType, facilities []domain.Facility) []response.FacilityTypeWithFacilityResponse {
+	if facilityTypes == nil {
+		return make([]response.FacilityTypeWithFacilityResponse, 0)
+	}
+
+	var responses []response.FacilityTypeWithFacilityResponse
+	for _, facilityType := range facilityTypes {
+		response := ToFacilityTypeWithFacilityResponse(facilityType, facilities)
+		responses = append(responses, response)
+	}
+	return responses
 }
