@@ -34,6 +34,7 @@ func main() {
 	endpoint.SetKosTypeEndpoint(router, getKosTypeController(db, validate))
 	endpoint.SetFacilityTypeEndpoint(router, getFacilityTypeController(db, validate))
 	endpoint.SetFacilityEndpoint(router, getFacilityController(db, validate))
+	endpoint.SetKosBedroomEndpoint(router, getKosBedroomController(db, validate))
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
@@ -99,6 +100,20 @@ func getFacilityController(db *sql.DB, validate *validator.Validate) controller.
 	return controller.NewFacilityController(facilityService)
 }
 
+func getKosBedroomController(db *sql.DB, validate *validator.Validate) controller.KosBedroomController {
+	kosBedroomService := service.NewKosBedroomService(
+		getKosBedroomRepository(),
+		getKosTypeRepository(),
+		getVillageRepository(),
+		getUserRepository(),
+		getKosFacilityRepository(),
+		getFacilityRepository(),
+		db,
+		validate,
+	)
+	return controller.NewKosBedroomController(kosBedroomService)
+}
+
 func getCountryRepository() repository.CountryRepository {
 	return repository.NewCountryRepository()
 }
@@ -137,4 +152,12 @@ func getFacilityTypeRepository() repository.FacilityTypeRepository {
 
 func getFacilityRepository() repository.FacilityRepository {
 	return repository.NewFacilityRepository()
+}
+
+func getKosBedroomRepository() repository.KosBedroomRepository {
+	return repository.NewKosBedroomRepository()
+}
+
+func getKosFacilityRepository() repository.KosFacilityRepository {
+	return repository.NewKosFacilityRepository()
 }

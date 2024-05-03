@@ -7,5 +7,6 @@ import (
 )
 
 type UserRepository interface {
+	CrudRepository
 	FindByEmail(ctx context.Context, tx *sql.Tx, email string) (domain.User, error)
 }

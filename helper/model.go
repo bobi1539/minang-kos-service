@@ -255,3 +255,31 @@ func ToFacilityResponses(facilities []domain.Facility) []response.FacilityRespon
 	}
 	return facilityResponses
 }
+
+func ToUserResponse(user domain.User) response.UserResponse {
+	return response.UserResponse{
+		Id:                 user.Id,
+		Email:              user.Email,
+		Name:               user.Name,
+		PhoneNumber:        user.PhoneNumber,
+		Role:               ToRoleResponse(user.Role),
+		BaseDomainResponse: ToBaseDomainResponse(user.BaseDomain),
+	}
+}
+
+func ToKosBedroomResponse(kosBedroom domain.KosBedroom) response.KosBedroomResponse {
+	return response.KosBedroomResponse{
+		Id:                   kosBedroom.CreatedBy,
+		Title:                kosBedroom.Title,
+		RoomLength:           kosBedroom.RoomLength,
+		RoomWidth:            kosBedroom.RoomWidth,
+		UnitLength:           kosBedroom.UnitLength,
+		IsIncludeElectricity: kosBedroom.IsIncludeElectricity,
+		Price:                kosBedroom.Price,
+		Images:               nil,
+		KosType:              ToKosTypeResponse(kosBedroom.KosType),
+		Village:              ToVillageResponse(kosBedroom.Village),
+		User:                 ToUserResponse(kosBedroom.User),
+		BaseDomainResponse:   ToBaseDomainResponse(kosBedroom.BaseDomain),
+	}
+}

@@ -168,3 +168,46 @@ CREATE TABLE `m_facility` (
   KEY `facility_facility_type_id_foreign` (`facility_type_id`),
   CONSTRAINT `facility_facility_type_id_foreign` FOREIGN KEY (`facility_type_id`) REFERENCES `m_facility_type` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- minang_kos.m_kos_bedroom definition
+
+CREATE TABLE `m_kos_bedroom` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `room_length` float NULL DEFAULT NULL,
+  `room_width` float NULL DEFAULT NULL,
+  `unit_length` varchar(255) NOT NULL,
+  `is_include_electricity` tinyint(1) NULL DEFAULT NULL,
+  `price` float NULL DEFAULT NULL,
+  `images` varchar(500) NOT NULL,
+  `kos_type_id` bigint(20) unsigned NOT NULL,
+  `village_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `created_by_name` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by_name` varchar(255) DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `bedroom_kos_type_id_foreign` (`kos_type_id`),
+  CONSTRAINT `bedroom_kos_type_id_foreign` FOREIGN KEY (`kos_type_id`) REFERENCES `m_kos_type` (`id`),
+  KEY `bedroom_village_id_foreign` (`village_id`),
+  CONSTRAINT `bedroom_village_id_foreign` FOREIGN KEY (`village_id`) REFERENCES `m_village` (`id`),
+  KEY `bedroom_user_id_foreign` (`user_id`),
+  CONSTRAINT `bedroom_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `m_user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- minang_kos.m_kos_facility definition
+
+CREATE TABLE `m_kos_facility` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `kos_bedroom_id` bigint(20) unsigned NOT NULL,
+  `facility_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `kos_facility_bedroom_id_foreign` (`kos_bedroom_id`),
+  CONSTRAINT `kos_facility_bedroom_id_foreign` FOREIGN KEY (`kos_bedroom_id`) REFERENCES `m_kos_bedroom` (`id`),
+  KEY `kos_facility_facility_id_foreign` (`facility_id`),
+  CONSTRAINT `kos_facility_facility_id_foreign` FOREIGN KEY (`facility_id`) REFERENCES `m_facility` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -16,6 +16,44 @@ func NewUserRepository() UserRepository {
 	return &UserRepositoryImpl{}
 }
 
+func (repository *UserRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, domainModel any) any {
+	panic("imp")
+}
+
+func (repository *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, domainModel any) any {
+	panic("imp")
+}
+
+func (repository *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, domainModel any) {
+	panic("imp")
+}
+
+func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error) {
+	sqlQuery := sqlSelectUser() + " AND mu.id = ?"
+	rows, err := tx.QueryContext(ctx, sqlQuery, id)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	user := domain.User{}
+	if rows.Next() {
+		scanUser(rows, &user)
+		return user, nil
+	}
+	return user, errors.New(constant.DATA_NOT_FOUND)
+}
+
+func (repository *UserRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
+	panic("imp")
+}
+
+func (repository *UserRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
+	panic("imp")
+}
+
+func (repository *UserRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
+	panic("imp")
+}
+
 func (repository *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (domain.User, error) {
 	sqlQuery := sqlSelectUser() + " AND mu.email = ?"
 
