@@ -9,6 +9,12 @@ import (
 const IMAGES = "/api/static/images"
 const IMAGES_KOS_BEDROOM = IMAGES + "/kos-bedroom"
 
-func SetImageEndpoint(router *httprouter.Router, imageController controller.ImageController) {
+func SetImageEndpoint(router *httprouter.Router) {
+	imageController := getImageController()
+
 	router.GET(IMAGES_KOS_BEDROOM, imageController.FindImageKosBedroom)
+}
+
+func getImageController() controller.ImageController {
+	return controller.NewImageController()
 }
