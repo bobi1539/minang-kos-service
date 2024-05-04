@@ -41,6 +41,7 @@ func (service *FacilityServiceImpl) Create(ctx context.Context, webRequest any) 
 	facilityType := service.findFacilityTypeById(ctx, tx, facilityRequest.FacilityTypeId)
 	facility := domain.Facility{
 		Name:         facilityRequest.Name,
+		Icon:         facilityRequest.Icon,
 		FacilityType: facilityType,
 		BaseDomain:   helper.BuildBaseDomain(ctx),
 	}
@@ -59,6 +60,7 @@ func (service *FacilityServiceImpl) Update(ctx context.Context, webRequest any) 
 	facilityType := service.findFacilityTypeById(ctx, tx, facilityRequest.FacilityTypeId)
 	facility := service.findFacilityById(ctx, tx, facilityRequest.Id)
 	facility.Name = facilityRequest.Name
+	facility.Icon = facilityRequest.Icon
 	facility.FacilityType = facilityType
 	helper.SetUpdatedBy(ctx, &facility.BaseDomain)
 

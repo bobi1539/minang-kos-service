@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 )
@@ -35,7 +37,17 @@ func (repository *KosBedroomRepositoryImpl) Delete(ctx context.Context, tx *sql.
 }
 
 func (repository *KosBedroomRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error) {
-	panic("imp")
+	sqlQuery := sqlSelectKosBedroom() + " AND mkb.id = ?"
+	rows, err := tx.QueryContext(ctx, sqlQuery, id)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	kosBedroom := domain.KosBedroom{}
+	for rows.Next() {
+		scanKosBedroom(rows, &kosBedroom)
+		return kosBedroom, nil
+	}
+	return nil, errors.New(constant.DATA_NOT_FOUND)
 }
 
 func (repository *KosBedroomRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
@@ -72,6 +84,46 @@ func sqlSaveKosBedroom() string {
 		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 }
 
+func sqlSelectKosBedroom() string {
+	return "SELECT mkb.id," +
+		" mkb.title," +
+		" mkb.room_length," +
+		" mkb.room_width," +
+		" mkb.unit_length," +
+		" mkb.is_include_electricity," +
+		" mkb.price," +
+		" mkb.street," +
+		" mkb.images," +
+		" mkb.kos_type_id," +
+		" mkb.village_id," +
+		" mkb.user_id," +
+		" mkb.created_at," +
+		" mkb.created_by," +
+		" mkb.created_by_name," +
+		" mkb.updated_at," +
+		" mkb.updated_by," +
+		" mkb.updated_by_name," +
+		" mkb.is_deleted," +
+		" mkt.name," +
+		" mu.email," +
+		" mu.name," +
+		" mu.phone_number," +
+		" mv.name," +
+		" md.name," +
+		" mct.name," +
+		" mp.name," +
+		" mc.name" +
+		" FROM m_kos_bedroom mkb" +
+		" LEFT JOIN m_kos_type mkt ON mkb.kos_type_id = mkt.id" +
+		" LEFT JOIN m_user mu ON mkb.user_id = mu.id" +
+		" LEFT JOIN m_village mv ON mkb.village_id = mv.id" +
+		" LEFT JOIN m_district md ON mv.district_id = md.id" +
+		" LEFT JOIN m_city mct ON md.city_id = mct.id" +
+		" LEFT JOIN m_province mp ON mct.province_id = mp.id" +
+		" LEFT JOIN m_country mc ON mp.country_id = mc.id" +
+		" WHERE mkb.is_deleted = false"
+}
+
 func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
 	var args []any
 	args = append(args, kosBedroom.Title)
@@ -93,4 +145,38 @@ func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
 	args = append(args, kosBedroom.UpdatedByName)
 	args = append(args, kosBedroom.IsDeleted)
 	return args
+}
+
+func scanKosBedroom(rows *sql.Rows, kosBedroom *domain.KosBedroom) {
+	err := rows.Scan(
+		&kosBedroom.Id,
+		&kosBedroom.Title,
+		&kosBedroom.RoomLength,
+		&kosBedroom.RoomWidth,
+		&kosBedroom.UnitLength,
+		&kosBedroom.IsIncludeElectricity,
+		&kosBedroom.Price,
+		&kosBedroom.Street,
+		&kosBedroom.Images,
+		&kosBedroom.KosType.Id,
+		&kosBedroom.Village.Id,
+		&kosBedroom.User.Id,
+		&kosBedroom.CreatedAt,
+		&kosBedroom.CreatedBy,
+		&kosBedroom.CreatedByName,
+		&kosBedroom.UpdatedAt,
+		&kosBedroom.UpdatedBy,
+		&kosBedroom.UpdatedByName,
+		&kosBedroom.IsDeleted,
+		&kosBedroom.KosType.Name,
+		&kosBedroom.User.Email,
+		&kosBedroom.User.Name,
+		&kosBedroom.User.PhoneNumber,
+		&kosBedroom.Village.Name,
+		&kosBedroom.Village.District.Name,
+		&kosBedroom.Village.District.City.Name,
+		&kosBedroom.Village.District.City.Province.Name,
+		&kosBedroom.Village.District.City.Province.Country.Name,
+	)
+	helper.PanicIfError(err)
 }

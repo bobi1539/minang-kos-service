@@ -8,7 +8,7 @@ import (
 
 const KOS_BEDROOMS = "/api/kos-bedrooms"
 const KOS_BEDROOMS_ALL = KOS_BEDROOMS + "/all"
-const KOS_BEDROOMS_KOS_BEDROOM = KOS_BEDROOMS + "/kos-bedroom/:kodBedroomId"
+const KOS_BEDROOMS_KOS_BEDROOM = KOS_BEDROOMS + "/kos-bedroom/:kosBedroomId"
 
 func SetKosBedroomEndpoint(router *httprouter.Router, kosBedroomController controller.KosBedroomController) {
 	router.POST(KOS_BEDROOMS, kosBedroomController.Create)

@@ -93,7 +93,12 @@ func (service *KosBedroomServiceImpl) Delete(ctx context.Context, id int64) {
 }
 
 func (service *KosBedroomServiceImpl) FindById(ctx context.Context, id int64) any {
-	panic("imp")
+	tx := service.beginTransaction()
+	defer helper.CommitOrRollback(tx)
+
+	kosBedroom := service.findKosBedroomById(ctx, tx, id)
+	facilities, facilityTypes := service.findKosFacilities(ctx, tx, id)
+	return helper.ToKosBedroomResponse(kosBedroom, facilityTypes, facilities)
 }
 
 func (service *KosBedroomServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
@@ -132,6 +137,34 @@ func (service *KosBedroomServiceImpl) findFacilityById(ctx context.Context, tx *
 	facility, err := service.FacilityRepository.FindById(ctx, tx, facilityId)
 	exception.PanicErrorBadRequest(err)
 	return facility.(domain.Facility)
+}
+
+func (service *KosBedroomServiceImpl) findKosBedroomById(ctx context.Context, tx *sql.Tx, kosBedroomId int64) domain.KosBedroom {
+	kosBedroom, err := service.KosBedroomRepository.FindById(ctx, tx, kosBedroomId)
+	exception.PanicErrorBadRequest(err)
+	return kosBedroom.(domain.KosBedroom)
+}
+
+func (service *KosBedroomServiceImpl) findKosFacilities(
+	ctx context.Context, tx *sql.Tx, kosBedroomId int64,
+) ([]domain.Facility, []domain.FacilityType) {
+	searchBy := make(map[string]any)
+	searchBy["kosBedroomId"] = kosBedroomId
+	searchBy["facilityId"] = int64(0)
+
+	var facilities []domain.Facility
+	var facilityTypes []domain.FacilityType
+
+	kosFacilities := service.KosFacilityRepository.FindAllWithoutPagination(ctx, tx, searchBy)
+	for _, kosFacility := range kosFacilities {
+		facilities = append(facilities, kosFacility.Facility)
+
+		if !service.isFacilityTypeExist(kosFacility.Facility.FacilityType, facilityTypes) {
+			facilityTypes = append(facilityTypes, kosFacility.Facility.FacilityType)
+		}
+	}
+
+	return facilities, facilityTypes
 }
 
 func (service *KosBedroomServiceImpl) createKosFacility(

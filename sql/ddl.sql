@@ -156,6 +156,7 @@ CREATE TABLE `m_facility_type` (
 CREATE TABLE `m_facility` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `icon` varchar(255) NOT NULL,
   `facility_type_id` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` bigint(20) unsigned DEFAULT NULL,

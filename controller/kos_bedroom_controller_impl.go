@@ -9,6 +9,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+const KOS_BEDROOM_ID = "kosBedroomId"
+
 type KosBedroomControllerImpl struct {
 	KosBedroomService service.KosBedroomService
 }
@@ -36,7 +38,9 @@ func (controller *KosBedroomControllerImpl) Delete(writer http.ResponseWriter, h
 }
 
 func (controller *KosBedroomControllerImpl) FindById(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	kosBedroomId := helper.GetIdFromPath(params, KOS_BEDROOM_ID)
+	kosBedroomResponse := controller.KosBedroomService.FindById(httpRequest.Context(), kosBedroomId)
+	helper.WriteSuccessResponse(writer, kosBedroomResponse)
 }
 
 func (controller *KosBedroomControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {

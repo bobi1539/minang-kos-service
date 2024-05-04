@@ -240,6 +240,7 @@ func ToFacilityResponse(facility domain.Facility) response.FacilityResponse {
 	return response.FacilityResponse{
 		Id:                 facility.Id,
 		Name:               facility.Name,
+		Icon:               facility.Icon,
 		FacilityType:       ToFacilityTypeResponse(facility.FacilityType),
 		BaseDomainResponse: ToBaseDomainResponse(facility.BaseDomain),
 	}

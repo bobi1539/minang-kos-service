@@ -8,4 +8,5 @@ import (
 
 type KosFacilityRepository interface {
 	Save(ctx context.Context, tx *sql.Tx, kosFacility domain.KosFacility) domain.KosFacility
+	FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) []domain.KosFacility
 }

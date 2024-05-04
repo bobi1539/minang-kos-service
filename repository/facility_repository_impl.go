@@ -18,10 +18,7 @@ func NewFacilityRepository() FacilityRepository {
 
 func (repository *FacilityRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	facility := domainModel.(domain.Facility)
-	result, err := tx.ExecContext(
-		ctx, sqlSaveFacility(), facility.Name, facility.FacilityType.Id, facility.CreatedAt, facility.CreatedBy, facility.CreatedByName,
-		facility.UpdatedAt, facility.UpdatedBy, facility.UpdatedByName, facility.IsDeleted,
-	)
+	result, err := tx.ExecContext(ctx, sqlSaveFacility(), argsSaveFacility(facility)...)
 	helper.PanicIfError(err)
 
 	id, err := result.LastInsertId()
@@ -33,10 +30,7 @@ func (repository *FacilityRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 
 func (repository *FacilityRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, domainModel any) any {
 	facility := domainModel.(domain.Facility)
-	_, err := tx.ExecContext(
-		ctx, sqlUpdateFacility(), facility.Name, facility.FacilityType.Id,
-		facility.UpdatedAt, facility.UpdatedBy, facility.UpdatedByName, facility.Id,
-	)
+	_, err := tx.ExecContext(ctx, sqlUpdateFacility(), argsUpdateFacility(facility)...)
 	helper.PanicIfError(err)
 
 	return facility
@@ -111,6 +105,7 @@ func (repository *FacilityRepositoryImpl) FindTotalItem(ctx context.Context, tx 
 
 func sqlSaveFacility() string {
 	return "INSERT INTO m_facility(name," +
+		" icon," +
 		" facility_type_id," +
 		" created_at," +
 		" created_by," +
@@ -118,11 +113,12 @@ func sqlSaveFacility() string {
 		" updated_at," +
 		" updated_by," +
 		" updated_by_name," +
-		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?)"
+		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?,?)"
 }
 
 func sqlUpdateFacility() string {
 	return "UPDATE m_facility SET name = ?," +
+		" icon = ?," +
 		" facility_type_id = ?," +
 		" updated_at = ?," +
 		" updated_by = ?," +
@@ -140,6 +136,7 @@ func sqlDeleteFacility() string {
 func sqlSelectFacility() string {
 	return "SELECT mf.id," +
 		" mf.name," +
+		" mf.icon," +
 		" mf.facility_type_id," +
 		" mf.created_at," +
 		" mf.created_by," +
@@ -194,6 +191,7 @@ func scanFacility(rows *sql.Rows, facility *domain.Facility) {
 	err := rows.Scan(
 		&facility.Id,
 		&facility.Name,
+		&facility.Icon,
 		&facility.FacilityType.Id,
 		&facility.CreatedAt,
 		&facility.CreatedBy,
@@ -212,4 +210,31 @@ func scanFacility(rows *sql.Rows, facility *domain.Facility) {
 		&facility.FacilityType.IsDeleted,
 	)
 	helper.PanicIfError(err)
+}
+
+func argsSaveFacility(facility domain.Facility) []any {
+	var args []any
+	args = append(args, facility.Name)
+	args = append(args, facility.Icon)
+	args = append(args, facility.FacilityType.Id)
+	args = append(args, facility.CreatedAt)
+	args = append(args, facility.CreatedBy)
+	args = append(args, facility.CreatedByName)
+	args = append(args, facility.UpdatedAt)
+	args = append(args, facility.UpdatedBy)
+	args = append(args, facility.UpdatedByName)
+	args = append(args, facility.IsDeleted)
+	return args
+}
+
+func argsUpdateFacility(facility domain.Facility) []any {
+	var args []any
+	args = append(args, facility.Name)
+	args = append(args, facility.Icon)
+	args = append(args, facility.FacilityType.Id)
+	args = append(args, facility.UpdatedAt)
+	args = append(args, facility.UpdatedBy)
+	args = append(args, facility.UpdatedByName)
+	args = append(args, facility.IsDeleted)
+	return args
 }
