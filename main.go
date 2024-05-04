@@ -35,6 +35,7 @@ func main() {
 	endpoint.SetFacilityTypeEndpoint(router, getFacilityTypeController(db, validate))
 	endpoint.SetFacilityEndpoint(router, getFacilityController(db, validate))
 	endpoint.SetKosBedroomEndpoint(router, getKosBedroomController(db, validate))
+	endpoint.SetImageEndpoint(router, getImageController())
 	router.PanicHandler = exception.ErrorHandler
 
 	runServer(router)
@@ -112,6 +113,10 @@ func getKosBedroomController(db *sql.DB, validate *validator.Validate) controlle
 		validate,
 	)
 	return controller.NewKosBedroomController(kosBedroomService)
+}
+
+func getImageController() controller.ImageController {
+	return controller.NewImageController()
 }
 
 func getCountryRepository() repository.CountryRepository {

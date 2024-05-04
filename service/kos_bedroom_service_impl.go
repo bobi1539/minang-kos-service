@@ -209,7 +209,7 @@ func (service *KosBedroomServiceImpl) saveImages(images []string) string {
 		imgByte := helper.DecodeBase64(arr[1])
 		service.validateImageSize(len(imgByte))
 
-		filepath := os.Getenv("PATH_FILE_IMAGE_BEDROOM")
+		filepath := os.Getenv(constant.PATH_FILE_IMAGE_KOS_BEDROOM)
 		filename = helper.GenerateImageFilename()
 		fullpath := filepath + filename
 		helper.WriteFile(fullpath, imgByte)

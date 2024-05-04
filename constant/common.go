@@ -14,3 +14,4 @@ const X_API_KEY = "X-API-Key"
 const METER = "meter"
 const MAX_IMAGE_SIZE = 512000 // 512 Kb
 const COMMA = ","
+const PATH_FILE_IMAGE_KOS_BEDROOM = "PATH_FILE_IMAGE_KOS_BEDROOM"

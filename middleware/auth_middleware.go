@@ -27,8 +27,7 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 		return
 	}
 
-	path := request.URL.Path
-	if strings.Contains(path, endpoint.AUTH) {
+	if isEndpointAllowedWithoutToken(request.URL.Path) {
 		middleware.Handler.ServeHTTP(writer, request)
 		return
 	}
@@ -59,4 +58,14 @@ func isApiKeyValid(request *http.Request) bool {
 	secretApiKey := os.Getenv("API_KEY")
 	apiKey := request.Header.Get(constant.X_API_KEY)
 	return apiKey == secretApiKey
+}
+
+func isEndpointAllowedWithoutToken(url string) bool {
+	allowed := []string{endpoint.AUTH, endpoint.IMAGES}
+	for _, allow := range allowed {
+		if strings.Contains(url, allow) {
+			return true
+		}
+	}
+	return false
 }

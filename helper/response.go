@@ -31,3 +31,9 @@ func BuildErrorResponse(code int, message string) response.WebResponse {
 		Message: message,
 	}
 }
+
+func WriteFileResponse(writer http.ResponseWriter, fileBytes []byte) {
+	writer.WriteHeader(http.StatusOK)
+	writer.Header().Set("Content-Type", "application/octet-stream")
+	writer.Write(fileBytes)
+}

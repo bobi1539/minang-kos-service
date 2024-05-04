@@ -31,6 +31,12 @@ func WriteFile(path string, fileByte []byte) {
 	PanicIfError(err)
 }
 
+func ReadFile(path string) []byte {
+	fileBytes, err := os.ReadFile(path)
+	PanicIfError(err)
+	return fileBytes
+}
+
 func GenerateImageFilename() string {
 	randomStr := GenerateRandomString(5)
 	unixNano := strconv.Itoa(GetUnixNano())
