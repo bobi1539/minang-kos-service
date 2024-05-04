@@ -31,8 +31,8 @@ func (repository *KosFacilityRepositoryImpl) FindAll(ctx context.Context, tx *sq
 	sqlQuery := sqlSelectKosFacility() + sqlSearch
 
 	if searchBy.Page > 0 {
-		offset := helper.GetSqlOffset(searchBy.Page, searchBy.Size)
 		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(searchBy.Page, searchBy.Size)
 		args = append(args, searchBy.Size, offset)
 	}
 

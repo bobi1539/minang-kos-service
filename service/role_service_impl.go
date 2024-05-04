@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/repository"
 
 	"github.com/go-playground/validator/v10"
@@ -79,20 +80,21 @@ func (service *RoleServiceImpl) FindById(ctx context.Context, id int64) any {
 	return helper.ToRoleResponse(role)
 }
 
-func (service *RoleServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *RoleServiceImpl) FindAllWithPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	roles := service.RoleRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.Role)
-	totalItem := service.RoleRepository.FindTotalItem(ctx, tx, searchBy)
-	return helper.ToResponsePagination(searchBy["page"].(int), searchBy["size"].(int), totalItem, helper.ToRoleResponses(roles))
+	roleSearch := searchBy.(search.RoleSearch)
+	roles := service.RoleRepository.FindAll(ctx, tx, roleSearch).([]domain.Role)
+	totalItem := service.RoleRepository.FindTotalItem(ctx, tx, roleSearch)
+	return helper.ToResponsePagination(roleSearch.Page, roleSearch.Size, totalItem, helper.ToRoleResponses(roles))
 }
 
-func (service *RoleServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *RoleServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	roles := service.RoleRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.Role)
+	roles := service.RoleRepository.FindAll(ctx, tx, searchBy).([]domain.Role)
 	return helper.ToRoleResponses(roles)
 }
 

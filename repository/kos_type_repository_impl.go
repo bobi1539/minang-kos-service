@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type KosTypeRepositorImpl struct {
@@ -62,28 +63,17 @@ func (repository *KosTypeRepositorImpl) FindById(ctx context.Context, tx *sql.Tx
 	return kosType, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *KosTypeRepositorImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *KosTypeRepositorImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	kosTypeSearch := searchBy.(search.KosTypeSearch)
 
-	page = helper.GetSqlOffset(page, size)
+	sqlSearch, args := sqlSearchKosTypeBy(kosTypeSearch.Name)
+	sqlQuery := sqlSelectKosType() + sqlSearch
 
-	sqlSearch, args := sqlSearchByKosType(name)
-	sqlQuery := sqlSelectKosType() + sqlSearch + " ORDER BY id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getKosTypes(rows)
-}
-
-func (repository *KosTypeRepositorImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-
-	sqlSearch, args := sqlSearchByKosType(name)
-	sqlQuery := sqlSelectKosType() + sqlSearch + " ORDER BY id ASC"
+	if kosTypeSearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(kosTypeSearch.Page, kosTypeSearch.Size)
+		args = append(args, kosTypeSearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -91,10 +81,10 @@ func (repository *KosTypeRepositorImpl) FindAllWithoutPagination(ctx context.Con
 	return getKosTypes(rows)
 }
 
-func (repository *KosTypeRepositorImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
+func (repository *KosTypeRepositorImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	kosTypeSearch := searchBy.(search.KosTypeSearch)
 
-	sqlSearch, args := sqlSearchByKosType(name)
+	sqlSearch, args := sqlSearchKosTypeBy(kosTypeSearch.Name)
 	sqlQuery := sqlFindTotalKosType() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -147,7 +137,7 @@ func sqlFindTotalKosType() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_kos_type WHERE is_deleted = false"
 }
 
-func sqlSearchByKosType(name string) (string, []any) {
+func sqlSearchKosTypeBy(name string) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -155,6 +145,8 @@ func sqlSearchByKosType(name string) (string, []any) {
 		sqlQuery += " AND LOWER(name) LIKE ?"
 		args = append(args, helper.StringQueryLike(name))
 	}
+
+	sqlQuery += " ORDER BY id ASC"
 	return sqlQuery, args
 }
 

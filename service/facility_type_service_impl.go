@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/repository"
 
 	"github.com/go-playground/validator/v10"
@@ -80,20 +81,21 @@ func (service *FacilityTypeServiceImpl) FindById(ctx context.Context, id int64) 
 	return helper.ToFacilityTypeResponse(facilityType)
 }
 
-func (service *FacilityTypeServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *FacilityTypeServiceImpl) FindAllWithPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	facilityTypes := service.FacilityTypeRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.FacilityType)
-	totalItem := service.FacilityTypeRepository.FindTotalItem(ctx, tx, searchBy)
-	return helper.ToResponsePagination(searchBy["page"].(int), searchBy["size"].(int), totalItem, helper.ToFacilityTypeResponses(facilityTypes))
+	facilityTypeSearch := searchBy.(search.FacilityTypeSearch)
+	facilityTypes := service.FacilityTypeRepository.FindAll(ctx, tx, facilityTypeSearch).([]domain.FacilityType)
+	totalItem := service.FacilityTypeRepository.FindTotalItem(ctx, tx, facilityTypeSearch)
+	return helper.ToResponsePagination(facilityTypeSearch.Page, facilityTypeSearch.Size, totalItem, helper.ToFacilityTypeResponses(facilityTypes))
 }
 
-func (service *FacilityTypeServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *FacilityTypeServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	facilityTypes := service.FacilityTypeRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.FacilityType)
+	facilityTypes := service.FacilityTypeRepository.FindAll(ctx, tx, searchBy).([]domain.FacilityType)
 	return helper.ToFacilityTypeResponses(facilityTypes)
 }
 

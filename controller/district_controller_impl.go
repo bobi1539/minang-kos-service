@@ -6,6 +6,7 @@ import (
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -55,20 +56,22 @@ func (controller *DistrictControllerImpl) FindById(writer http.ResponseWriter, h
 }
 
 func (controller *DistrictControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, DISTRICT_NAME)
-	searchBy["cityId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, CITY_ID))
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.DistrictSearch{
+		Name:     helper.GetQueryParam(httpRequest, DISTRICT_NAME),
+		CityId:   helper.StringToInt64(helper.GetQueryParam(httpRequest, CITY_ID)),
+		PageSize: search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	districtResponses := controller.DistrictService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, districtResponses)
 }
 
 func (controller *DistrictControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, DISTRICT_NAME)
-	searchBy["cityId"] = getCityId(helper.GetQueryParam(httpRequest, CITY_ID))
+	searchBy := search.DistrictSearch{
+		Name:     helper.GetQueryParam(httpRequest, DISTRICT_NAME),
+		CityId:   getCityId(helper.GetQueryParam(httpRequest, CITY_ID)),
+		PageSize: search.BuildPageSize(0, 0),
+	}
 
 	districtResponses := controller.DistrictService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, districtResponses)

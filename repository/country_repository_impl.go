@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type CountryRepositoryImpl struct {
@@ -62,28 +63,16 @@ func (repository *CountryRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 	return country, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *CountryRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *CountryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	countrySearch := searchBy.(search.CountrySearch)
+	sqlSearch, args := sqlSearchByCountry(countrySearch.Name)
+	sqlQuery := sqlSelectCountry() + sqlSearch
 
-	page = helper.GetSqlOffset(page, size)
-
-	sqlSearch, args := sqlSearchByCountry(name)
-	sqlQuery := sqlSelectCountry() + sqlSearch + " ORDER BY id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getCountries(rows)
-}
-
-func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-
-	sqlSearch, args := sqlSearchByCountry(name)
-	sqlQuery := sqlSelectCountry() + sqlSearch + " ORDER BY id ASC"
+	if countrySearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(countrySearch.Page, countrySearch.Size)
+		args = append(args, countrySearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -91,10 +80,10 @@ func (repository *CountryRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 	return getCountries(rows)
 }
 
-func (repository *CountryRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
+func (repository *CountryRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	countrySearch := searchBy.(search.CountrySearch)
 
-	sqlSearch, args := sqlSearchByCountry(name)
+	sqlSearch, args := sqlSearchByCountry(countrySearch.Name)
 	sqlQuery := sqlFindTotalCountry() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -155,6 +144,8 @@ func sqlSearchByCountry(name string) (string, []any) {
 		sqlQuery += " AND LOWER(name) LIKE ?"
 		args = append(args, helper.StringQueryLike(name))
 	}
+
+	sqlQuery += " ORDER BY id ASC"
 	return sqlQuery, args
 }
 

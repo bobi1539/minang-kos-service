@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type RoleRepositoryImpl struct {
@@ -61,28 +62,17 @@ func (repository *RoleRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, 
 	return role, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *RoleRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *RoleRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	roleSearch := searchBy.(search.RoleSearch)
 
-	page = helper.GetSqlOffset(page, size)
+	sqlSearch, args := sqlSearchRoleBy(roleSearch.Name)
+	sqlQuery := sqlSelectRole() + sqlSearch + ""
 
-	sqlSearch, args := sqlSearchByRole(name)
-	sqlQuery := sqlSelectRole() + sqlSearch + " ORDER BY id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getRoles(rows)
-}
-
-func (repository *RoleRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-
-	sqlSearch, args := sqlSearchByRole(name)
-	sqlQuery := sqlSelectRole() + sqlSearch + " ORDER BY id ASC"
+	if roleSearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(roleSearch.Page, roleSearch.Size)
+		args = append(args, roleSearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -90,10 +80,10 @@ func (repository *RoleRepositoryImpl) FindAllWithoutPagination(ctx context.Conte
 	return getRoles(rows)
 }
 
-func (repository *RoleRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
+func (repository *RoleRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	roleSearch := searchBy.(search.RoleSearch)
 
-	sqlSearch, args := sqlSearchByRole(name)
+	sqlSearch, args := sqlSearchRoleBy(roleSearch.Name)
 	sqlQuery := sqlFindTotalRole() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -146,7 +136,7 @@ func sqlFindTotalRole() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_role WHERE is_deleted = false"
 }
 
-func sqlSearchByRole(name string) (string, []any) {
+func sqlSearchRoleBy(name string) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -154,6 +144,8 @@ func sqlSearchByRole(name string) (string, []any) {
 		sqlQuery += " AND LOWER(name) LIKE ?"
 		args = append(args, helper.StringQueryLike(name))
 	}
+
+	sqlQuery += " ORDER BY id ASC"
 	return sqlQuery, args
 }
 

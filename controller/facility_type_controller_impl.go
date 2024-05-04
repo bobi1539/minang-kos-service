@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -53,18 +53,20 @@ func (controller *FacilityTypeControllerImpl) FindById(writer http.ResponseWrite
 }
 
 func (controller *FacilityTypeControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, FACILITY_TYPE_NAME)
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.FacilityTypeSearch{
+		Name:     helper.GetQueryParam(httpRequest, FACILITY_TYPE_NAME),
+		PageSize: search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	facilityTypeResponses := controller.FacilitTypeService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, facilityTypeResponses)
 }
 
 func (controller *FacilityTypeControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, FACILITY_TYPE_NAME)
+	searchBy := search.FacilityTypeSearch{
+		Name:     helper.GetQueryParam(httpRequest, FACILITY_TYPE_NAME),
+		PageSize: search.BuildPageSize(0, 0),
+	}
 
 	facilityTypeResponses := controller.FacilitTypeService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, facilityTypeResponses)

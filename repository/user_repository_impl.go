@@ -42,7 +42,7 @@ func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, 
 	return user, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *UserRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
+func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
 	panic("imp")
 }
 
@@ -50,7 +50,7 @@ func (repository *UserRepositoryImpl) FindAllWithoutPagination(ctx context.Conte
 	panic("imp")
 }
 
-func (repository *UserRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
+func (repository *UserRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
 	panic("imp")
 }
 

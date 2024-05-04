@@ -52,13 +52,13 @@ func (repository *KosBedroomRepositoryImpl) FindById(ctx context.Context, tx *sq
 }
 
 func (repository *KosBedroomRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
-	search := searchBy.(search.KosBedroomSearch)
+	kosBedroomSearch := searchBy.(search.KosBedroomSearch)
 
-	offset := helper.GetSqlOffset(search.Page, search.Size)
+	offset := helper.GetSqlOffset(kosBedroomSearch.Page, kosBedroomSearch.Size)
 
-	sqlSearch, args := sqlSearchKosBedroomBy(search.Address)
+	sqlSearch, args := sqlSearchKosBedroomBy(kosBedroomSearch.Address)
 	sqlQuery := sqlSelectKosBedroomSimple() + sqlSearch + " ORDER BY mkb.id ASC LIMIT ? OFFSET ?"
-	args = append(args, search.Size, offset)
+	args = append(args, kosBedroomSearch.Size, offset)
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -66,31 +66,10 @@ func (repository *KosBedroomRepositoryImpl) FindAll(ctx context.Context, tx *sql
 	return getKosBedrooms(rows, scanSimpleKosBedroom)
 }
 
-func (repository *KosBedroomRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	address := searchBy["address"].(string)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *KosBedroomRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	kosBedroomSearch := searchBy.(search.KosBedroomSearch)
 
-	page = helper.GetSqlOffset(page, size)
-
-	sqlSearch, args := sqlSearchKosBedroomBy(address)
-	sqlQuery := sqlSelectKosBedroomSimple() + sqlSearch + " ORDER BY mkb.id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getKosBedrooms(rows, scanSimpleKosBedroom)
-}
-
-func (repository *KosBedroomRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	panic("imp")
-}
-
-func (repository *KosBedroomRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	address := searchBy["address"].(string)
-
-	sqlSearch, args := sqlSearchKosBedroomBy(address)
+	sqlSearch, args := sqlSearchKosBedroomBy(kosBedroomSearch.Address)
 	sqlQuery := sqlFindTotalKosBedroom() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)

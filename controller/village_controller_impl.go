@@ -6,6 +6,7 @@ import (
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -51,19 +52,21 @@ func (controller *VillageControllerImpl) FindById(writer http.ResponseWriter, ht
 	helper.WriteSuccessResponse(writer, villageResponse)
 }
 func (controller *VillageControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, VILLAGE_NAME)
-	searchBy["districtId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, DISTRICT_ID))
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.VillageSearch{
+		Name:       helper.GetQueryParam(httpRequest, VILLAGE_NAME),
+		DistrictId: helper.StringToInt64(helper.GetQueryParam(httpRequest, DISTRICT_ID)),
+		PageSize:   search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	villageResponses := controller.VillageService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, villageResponses)
 }
 func (controller *VillageControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, VILLAGE_NAME)
-	searchBy["districtId"] = getDistrictId(helper.GetQueryParam(httpRequest, DISTRICT_ID))
+	searchBy := search.VillageSearch{
+		Name:       helper.GetQueryParam(httpRequest, VILLAGE_NAME),
+		DistrictId: getDistrictId(helper.GetQueryParam(httpRequest, DISTRICT_ID)),
+		PageSize:   search.BuildPageSize(0, 0),
+	}
 
 	villageResponses := controller.VillageService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, villageResponses)

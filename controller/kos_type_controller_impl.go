@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -53,18 +53,20 @@ func (controller *KosTypeControllerImpl) FindById(writer http.ResponseWriter, ht
 }
 
 func (controller *KosTypeControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, KOS_TYPE_NAME)
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.KosTypeSearch{
+		Name:     helper.GetQueryParam(httpRequest, KOS_TYPE_NAME),
+		PageSize: search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	kosTypeResponses := controller.KosTypeService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, kosTypeResponses)
 }
 
 func (controller *KosTypeControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, KOS_TYPE_NAME)
+	searchBy := search.KosTypeSearch{
+		Name:     helper.GetQueryParam(httpRequest, KOS_TYPE_NAME),
+		PageSize: search.BuildPageSize(0, 0),
+	}
 
 	kosTypeResponses := controller.KosTypeService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, kosTypeResponses)

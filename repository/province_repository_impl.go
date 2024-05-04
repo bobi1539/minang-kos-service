@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type ProvinceRepositoryImpl struct {
@@ -65,30 +66,17 @@ func (repository *ProvinceRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	return province, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *ProvinceRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	countryId := searchBy["countryId"].(int64)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *ProvinceRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	provinceSearch := searchBy.(search.ProvinceSearch)
 
-	page = helper.GetSqlOffset(page, size)
+	sqlSearch, args := sqlSearchProvinceBy(provinceSearch.Name, provinceSearch.CountryId)
+	sqlQuery := sqlSelectProvince() + sqlSearch
 
-	sqlSearch, args := sqlSearchByProvince(name, countryId)
-	sqlQuery := sqlSelectProvince() + sqlSearch + " ORDER BY mp.id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getProvinces(rows)
-}
-
-func (repository *ProvinceRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	countryId := searchBy["countryId"].(int64)
-
-	sqlSearch, args := sqlSearchByProvince(name, countryId)
-	sqlQuery := sqlSelectProvince() + sqlSearch + " ORDER BY mp.id ASC"
+	if provinceSearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(provinceSearch.Page, provinceSearch.Size)
+		args = append(args, provinceSearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -96,11 +84,10 @@ func (repository *ProvinceRepositoryImpl) FindAllWithoutPagination(ctx context.C
 	return getProvinces(rows)
 }
 
-func (repository *ProvinceRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
-	countryId := searchBy["countryId"].(int64)
+func (repository *ProvinceRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	provinceSearch := searchBy.(search.ProvinceSearch)
 
-	sqlSearch, args := sqlSearchByProvince(name, countryId)
+	sqlSearch, args := sqlSearchProvinceBy(provinceSearch.Name, provinceSearch.CountryId)
 	sqlQuery := sqlFindTotalProvince() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -164,7 +151,7 @@ func sqlFindTotalProvince() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_province mp WHERE mp.is_deleted = false"
 }
 
-func sqlSearchByProvince(name string, countryId int64) (string, []any) {
+func sqlSearchProvinceBy(name string, countryId int64) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -177,7 +164,19 @@ func sqlSearchByProvince(name string, countryId int64) (string, []any) {
 		sqlQuery += " AND mp.country_id = ?"
 		args = append(args, countryId)
 	}
+
+	sqlQuery += " ORDER BY mp.id ASC"
 	return sqlQuery, args
+}
+
+func getProvinces(rows *sql.Rows) []domain.Province {
+	var provinces []domain.Province
+	for rows.Next() {
+		province := domain.Province{}
+		scanProvince(rows, &province)
+		provinces = append(provinces, province)
+	}
+	return provinces
 }
 
 func scanProvince(rows *sql.Rows, province *domain.Province) {
@@ -202,14 +201,4 @@ func scanProvince(rows *sql.Rows, province *domain.Province) {
 		&province.Country.IsDeleted,
 	)
 	helper.PanicIfError(err)
-}
-
-func getProvinces(rows *sql.Rows) []domain.Province {
-	var provinces []domain.Province
-	for rows.Next() {
-		province := domain.Province{}
-		scanProvince(rows, &province)
-		provinces = append(provinces, province)
-	}
-	return provinces
 }

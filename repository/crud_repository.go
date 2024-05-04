@@ -11,9 +11,8 @@ type CrudRepository interface {
 	Update(ctx context.Context, tx *sql.Tx, domainModel any) any
 	Delete(ctx context.Context, tx *sql.Tx, domainModel any)
 	FindById(ctx context.Context, tx *sql.Tx, id int64) (any, error)
-	FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any
-	FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any
-	FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int
+	FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any
+	FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int
 }
 
 func ScanTotalItem(rows *sql.Rows) int {

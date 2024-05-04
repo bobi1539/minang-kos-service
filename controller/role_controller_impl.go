@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -11,6 +11,7 @@ import (
 )
 
 const ROLE_ID = "roleId"
+const ROLE_NAME = "name"
 
 type RoleControllerImpl struct {
 	RoleService service.RoleService
@@ -52,18 +53,20 @@ func (controller *RoleControllerImpl) FindById(writer http.ResponseWriter, httpR
 }
 
 func (controller *RoleControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, "name")
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.RoleSearch{
+		Name:     helper.GetQueryParam(httpRequest, ROLE_NAME),
+		PageSize: search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	roleResponses := controller.RoleService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, roleResponses)
 }
 
 func (controller *RoleControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, "name")
+	searchBy := search.RoleSearch{
+		Name:     helper.GetQueryParam(httpRequest, ROLE_NAME),
+		PageSize: search.BuildPageSize(0, 0),
+	}
 
 	roleResponses := controller.RoleService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, roleResponses)

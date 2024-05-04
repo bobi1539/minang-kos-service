@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type CityRepositoryImpl struct {
@@ -65,30 +66,17 @@ func (repository *CityRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, 
 	return city, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *CityRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	provinceId := searchBy["provinceId"].(int64)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *CityRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	citySearch := searchBy.(search.CitySearch)
 
-	page = helper.GetSqlOffset(page, size)
+	sqlSearch, args := sqlSearchCityBy(citySearch.Name, citySearch.ProvinceId)
+	sqlQuery := sqlSelectCity() + sqlSearch
 
-	sqlSearch, args := sqlSearchByCity(name, provinceId)
-	sqlQuery := sqlSelectCity() + sqlSearch + " ORDER BY mct.id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getCities(rows)
-}
-
-func (repository *CityRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	provinceId := searchBy["provinceId"].(int64)
-
-	sqlSearch, args := sqlSearchByCity(name, provinceId)
-	sqlQuery := sqlSelectCity() + sqlSearch + " ORDER BY mct.id ASC"
+	if citySearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(citySearch.Page, citySearch.Size)
+		args = append(args, citySearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -96,11 +84,10 @@ func (repository *CityRepositoryImpl) FindAllWithoutPagination(ctx context.Conte
 	return getCities(rows)
 }
 
-func (repository *CityRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
-	provinceId := searchBy["provinceId"].(int64)
+func (repository *CityRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	citySearch := searchBy.(search.CitySearch)
 
-	sqlSearch, args := sqlSearchByCity(name, provinceId)
+	sqlSearch, args := sqlSearchCityBy(citySearch.Name, citySearch.ProvinceId)
 	sqlQuery := sqlFindTotalCity() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -174,7 +161,7 @@ func sqlFindTotalCity() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_city mct WHERE mct.is_deleted = false"
 }
 
-func sqlSearchByCity(name string, provinceId int64) (string, []any) {
+func sqlSearchCityBy(name string, provinceId int64) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -187,6 +174,8 @@ func sqlSearchByCity(name string, provinceId int64) (string, []any) {
 		sqlQuery += " AND mct.province_id = ?"
 		args = append(args, provinceId)
 	}
+
+	sqlQuery += " ORDER BY mct.id ASC"
 	return sqlQuery, args
 }
 

@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -53,20 +53,22 @@ func (controller *FacilityControllerImpl) FindById(writer http.ResponseWriter, h
 }
 
 func (controller *FacilityControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, FACILITY_NAME)
-	searchBy["facilityTypeId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, FACILITY_TYPE_ID))
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.FacilitySearch{
+		Name:           helper.GetQueryParam(httpRequest, FACILITY_NAME),
+		FacilityTypeId: helper.StringToInt64(helper.GetQueryParam(httpRequest, FACILITY_TYPE_ID)),
+		PageSize:       search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	facilityResponses := controller.FacilityService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, facilityResponses)
 }
 
 func (controller *FacilityControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, FACILITY_NAME)
-	searchBy["facilityTypeId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, FACILITY_TYPE_ID))
+	searchBy := search.FacilitySearch{
+		Name:           helper.GetQueryParam(httpRequest, FACILITY_NAME),
+		FacilityTypeId: helper.StringToInt64(helper.GetQueryParam(httpRequest, FACILITY_TYPE_ID)),
+		PageSize:       search.BuildPageSize(0, 0),
+	}
 
 	facilityResponses := controller.FacilityService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, facilityResponses)

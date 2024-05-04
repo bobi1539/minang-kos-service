@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type DistrictRepositoryImpl struct {
@@ -65,17 +66,17 @@ func (repository *DistrictRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	return district, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *DistrictRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	cityId := searchBy["cityId"].(int64)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *DistrictRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	districtSearch := searchBy.(search.DistrictSearch)
 
-	page = helper.GetSqlOffset(page, size)
-
-	sqlSearch, args := sqlSearchByDistrict(name, cityId)
+	sqlSearch, args := sqlSearchDistrictBy(districtSearch.Name, districtSearch.CityId)
 	sqlQuery := sqlSelectDistrict() + sqlSearch + " ORDER BY md.id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
+
+	if districtSearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(districtSearch.Page, districtSearch.Size)
+		args = append(args, districtSearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -83,24 +84,10 @@ func (repository *DistrictRepositoryImpl) FindAllWithPagination(ctx context.Cont
 	return getDistricts(rows)
 }
 
-func (repository *DistrictRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	cityId := searchBy["cityId"].(int64)
+func (repository *DistrictRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	districtSearch := searchBy.(search.DistrictSearch)
 
-	sqlSearch, args := sqlSearchByDistrict(name, cityId)
-	sqlQuery := sqlSelectDistrict() + sqlSearch + " ORDER BY md.id ASC"
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getDistricts(rows)
-}
-
-func (repository *DistrictRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
-	cityId := searchBy["cityId"].(int64)
-
-	sqlSearch, args := sqlSearchByDistrict(name, cityId)
+	sqlSearch, args := sqlSearchDistrictBy(districtSearch.Name, districtSearch.CityId)
 	sqlQuery := sqlFindTotalDistrict() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -184,7 +171,7 @@ func sqlFindTotalDistrict() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_district md WHERE md.is_deleted = false"
 }
 
-func sqlSearchByDistrict(name string, cityId int64) (string, []any) {
+func sqlSearchDistrictBy(name string, cityId int64) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -197,6 +184,8 @@ func sqlSearchByDistrict(name string, cityId int64) (string, []any) {
 		sqlQuery += " AND md.city_id = ?"
 		args = append(args, cityId)
 	}
+
+	sqlQuery += " ORDER BY md.id ASC"
 	return sqlQuery, args
 }
 

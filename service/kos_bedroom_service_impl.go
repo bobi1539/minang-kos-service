@@ -106,17 +106,13 @@ func (service *KosBedroomServiceImpl) FindById(ctx context.Context, id int64) an
 	return helper.ToKosBedroomResponse(kosBedroom, facilityTypes, facilities)
 }
 
-func (service *KosBedroomServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *KosBedroomServiceImpl) FindAllWithPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	kosBedroomSearch := search.KosBedroomSearch{
-		Address:  searchBy["address"].(string),
-		PageSize: search.BuildPageSize(searchBy["page"].(int), searchBy["size"].(int)),
-	}
-
+	kosBedroomSearch := searchBy.(search.KosBedroomSearch)
 	kosBedrooms := service.KosBedroomRepository.FindAll(ctx, tx, kosBedroomSearch).([]domain.KosBedroom)
-	totalItem := service.KosBedroomRepository.FindTotalItem(ctx, tx, searchBy)
+	totalItem := service.KosBedroomRepository.FindTotalItem(ctx, tx, kosBedroomSearch)
 
 	var responses []response.KosBedroomResponse
 	for _, kosBedroom := range kosBedrooms {
@@ -125,15 +121,10 @@ func (service *KosBedroomServiceImpl) FindAllWithPagination(ctx context.Context,
 		responses = append(responses, response)
 	}
 
-	return helper.ToResponsePagination(
-		searchBy["page"].(int),
-		searchBy["size"].(int),
-		totalItem,
-		responses,
-	)
+	return helper.ToResponsePagination(kosBedroomSearch.Page, kosBedroomSearch.Size, totalItem, responses)
 }
 
-func (service *KosBedroomServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *KosBedroomServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy any) any {
 	panic("imp")
 }
 

@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -11,6 +11,7 @@ import (
 )
 
 const COUNTRY_ID = "countryId"
+const COUNTRY_NAME = "name"
 
 type CountryControllerImpl struct {
 	CountryService service.CountryService
@@ -52,18 +53,20 @@ func (controller *CountryControllerImpl) FindById(writer http.ResponseWriter, ht
 }
 
 func (controller *CountryControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, "name")
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.CountrySearch{
+		Name:     helper.GetQueryParam(httpRequest, COUNTRY_NAME),
+		PageSize: search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	countryResponses := controller.CountryService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, countryResponses)
 }
 
 func (controller *CountryControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, "name")
+	searchBy := search.CountrySearch{
+		Name:     helper.GetQueryParam(httpRequest, COUNTRY_NAME),
+		PageSize: search.BuildPageSize(0, 0),
+	}
 
 	countryResponses := controller.CountryService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, countryResponses)

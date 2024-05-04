@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type FacilityRepositoryImpl struct {
@@ -59,30 +60,17 @@ func (repository *FacilityRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	return facility, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *FacilityRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	facilityTypeId := searchBy["facilityTypeId"].(int64)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *FacilityRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	facilitySearch := searchBy.(search.FacilitySearch)
 
-	page = helper.GetSqlOffset(page, size)
+	sqlSearch, args := sqlSearchFacilityBy(facilitySearch.Name, facilitySearch.FacilityTypeId)
+	sqlQuery := sqlSelectFacility() + sqlSearch
 
-	sqlSearch, args := sqlSearchByFacility(name, facilityTypeId)
-	sqlQuery := sqlSelectFacility() + sqlSearch + " ORDER BY mf.id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getFacilities(rows)
-}
-
-func (repository *FacilityRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	facilityTypeId := searchBy["facilityTypeId"].(int64)
-
-	sqlSearch, args := sqlSearchByFacility(name, facilityTypeId)
-	sqlQuery := sqlSelectFacility() + sqlSearch + " ORDER BY mf.id ASC"
+	if facilitySearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(facilitySearch.Page, facilitySearch.Size)
+		args = append(args, facilitySearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -90,11 +78,10 @@ func (repository *FacilityRepositoryImpl) FindAllWithoutPagination(ctx context.C
 	return getFacilities(rows)
 }
 
-func (repository *FacilityRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
-	facilityTypeId := searchBy["facilityTypeId"].(int64)
+func (repository *FacilityRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	facilitySearch := searchBy.(search.FacilitySearch)
 
-	sqlSearch, args := sqlSearchByFacility(name, facilityTypeId)
+	sqlSearch, args := sqlSearchFacilityBy(facilitySearch.Name, facilitySearch.FacilityTypeId)
 	sqlQuery := sqlFindTotalFacility() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -161,7 +148,7 @@ func sqlFindTotalFacility() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_facility mf WHERE mf.is_deleted = false"
 }
 
-func sqlSearchByFacility(name string, facilityTypeId int64) (string, []any) {
+func sqlSearchFacilityBy(name string, facilityTypeId int64) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -174,6 +161,8 @@ func sqlSearchByFacility(name string, facilityTypeId int64) (string, []any) {
 		sqlQuery += " AND mf.facility_type_id = ?"
 		args = append(args, facilityTypeId)
 	}
+
+	sqlQuery += " ORDER BY mf.id ASC"
 	return sqlQuery, args
 }
 

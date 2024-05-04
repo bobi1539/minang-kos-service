@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/repository"
 
 	"github.com/go-playground/validator/v10"
@@ -80,20 +81,21 @@ func (service *CountryServiceImpl) FindById(ctx context.Context, id int64) any {
 	return helper.ToCountryResponse(country)
 }
 
-func (service *CountryServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *CountryServiceImpl) FindAllWithPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	countries := service.CountryRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.Country)
-	totalItem := service.CountryRepository.FindTotalItem(ctx, tx, searchBy)
-	return helper.ToResponsePagination(searchBy["page"].(int), searchBy["size"].(int), totalItem, helper.ToCountryResponses(countries))
+	countrySearch := searchBy.(search.CountrySearch)
+	countries := service.CountryRepository.FindAll(ctx, tx, countrySearch).([]domain.Country)
+	totalItem := service.CountryRepository.FindTotalItem(ctx, tx, countrySearch)
+	return helper.ToResponsePagination(countrySearch.Page, countrySearch.Size, totalItem, helper.ToCountryResponses(countries))
 }
 
-func (service *CountryServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *CountryServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	countries := service.CountryRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.Country)
+	countries := service.CountryRepository.FindAll(ctx, tx, searchBy).([]domain.Country)
 	return helper.ToCountryResponses(countries)
 }
 

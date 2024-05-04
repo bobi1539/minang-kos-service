@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type VillageRepositoryImpl struct {
@@ -65,30 +66,17 @@ func (repository *VillageRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 	return village, errors.New(constant.DATA_NOT_FOUND)
 }
 
-func (repository *VillageRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	districtId := searchBy["districtId"].(int64)
-	page := searchBy["page"].(int)
-	size := searchBy["size"].(int)
+func (repository *VillageRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	villageSearch := searchBy.(search.VillageSearch)
 
-	page = helper.GetSqlOffset(page, size)
+	sqlSearch, args := sqlSearchVillageBy(villageSearch.Name, villageSearch.DistrictId)
+	sqlQuery := sqlSelectVillage() + sqlSearch
 
-	sqlSearch, args := sqlSearchByVillage(name, districtId)
-	sqlQuery := sqlSelectVillage() + sqlSearch + " ORDER BY mv.id ASC LIMIT ? OFFSET ?"
-	args = append(args, size, page)
-
-	rows := FetchRows(ctx, tx, sqlQuery, args)
-	defer rows.Close()
-
-	return getVillages(rows)
-}
-
-func (repository *VillageRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	name := searchBy["name"].(string)
-	districtId := searchBy["districtId"].(int64)
-
-	sqlSearch, args := sqlSearchByVillage(name, districtId)
-	sqlQuery := sqlSelectVillage() + sqlSearch + " ORDER BY mv.id ASC"
+	if villageSearch.Page > 0 {
+		sqlQuery += " LIMIT ? OFFSET ?"
+		offset := helper.GetSqlOffset(villageSearch.Page, villageSearch.Size)
+		args = append(args, villageSearch.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -96,11 +84,10 @@ func (repository *VillageRepositoryImpl) FindAllWithoutPagination(ctx context.Co
 	return getVillages(rows)
 }
 
-func (repository *VillageRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	name := searchBy["name"].(string)
-	districtId := searchBy["districtId"].(int64)
+func (repository *VillageRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy any) int {
+	villageSearch := searchBy.(search.VillageSearch)
 
-	sqlSearch, args := sqlSearchByVillage(name, districtId)
+	sqlSearch, args := sqlSearchVillageBy(villageSearch.Name, villageSearch.DistrictId)
 	sqlQuery := sqlFindTotalVillage() + sqlSearch
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
@@ -194,7 +181,7 @@ func sqlFindTotalVillage() string {
 	return "SELECT COUNT(1) AS totalItem FROM m_village mv WHERE mv.is_deleted = false"
 }
 
-func sqlSearchByVillage(name string, districtId int64) (string, []any) {
+func sqlSearchVillageBy(name string, districtId int64) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -207,6 +194,8 @@ func sqlSearchByVillage(name string, districtId int64) (string, []any) {
 		sqlQuery += " AND mv.district_id = ?"
 		args = append(args, districtId)
 	}
+
+	sqlQuery += " ORDER BY mv.id ASC"
 	return sqlQuery, args
 }
 

@@ -6,6 +6,7 @@ import (
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -55,20 +56,22 @@ func (controller *ProvinceControllerImpl) FindById(writer http.ResponseWriter, h
 }
 
 func (controller *ProvinceControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, PROVINCE_NAME)
-	searchBy["countryId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, COUNTRY_ID))
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	searchBy := search.ProvinceSearch{
+		Name:      helper.GetQueryParam(httpRequest, PROVINCE_NAME),
+		CountryId: helper.StringToInt64(helper.GetQueryParam(httpRequest, COUNTRY_ID)),
+		PageSize:  search.BuildPageSizeFromRequest(httpRequest),
+	}
 
 	provinceResponses := controller.ProvinceService.FindAllWithPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, provinceResponses)
 }
 
 func (controller *ProvinceControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, PROVINCE_NAME)
-	searchBy["countryId"] = getCountryId(helper.GetQueryParam(httpRequest, COUNTRY_ID))
+	searchBy := search.ProvinceSearch{
+		Name:      helper.GetQueryParam(httpRequest, PROVINCE_NAME),
+		CountryId: getCountryId(helper.GetQueryParam(httpRequest, COUNTRY_ID)),
+		PageSize:  search.BuildPageSize(0, 0),
+	}
 
 	provinceResponses := controller.ProvinceService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
 	helper.WriteSuccessResponse(writer, provinceResponses)

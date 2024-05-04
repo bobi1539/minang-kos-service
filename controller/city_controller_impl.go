@@ -6,6 +6,7 @@ import (
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/service"
 	"net/http"
 
@@ -55,22 +56,24 @@ func (controller *CityControllerImpl) FindById(writer http.ResponseWriter, httpR
 }
 
 func (controller *CityControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, CITY_NAME)
-	searchBy["provinceId"] = helper.StringToInt64(helper.GetQueryParam(httpRequest, PROVINCE_ID))
-	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
-	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+	citySearch := search.CitySearch{
+		Name:       helper.GetQueryParam(httpRequest, CITY_NAME),
+		ProvinceId: helper.StringToInt64(helper.GetQueryParam(httpRequest, PROVINCE_ID)),
+		PageSize:   search.BuildPageSizeFromRequest(httpRequest),
+	}
 
-	cityResponses := controller.CityService.FindAllWithPagination(httpRequest.Context(), searchBy)
+	cityResponses := controller.CityService.FindAllWithPagination(httpRequest.Context(), citySearch)
 	helper.WriteSuccessResponse(writer, cityResponses)
 }
 
 func (controller *CityControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	searchBy := make(map[string]any)
-	searchBy["name"] = helper.GetQueryParam(httpRequest, CITY_NAME)
-	searchBy["provinceId"] = getProvinceId(helper.GetQueryParam(httpRequest, PROVINCE_ID))
+	citySearch := search.CitySearch{
+		Name:       helper.GetQueryParam(httpRequest, CITY_NAME),
+		ProvinceId: getProvinceId(helper.GetQueryParam(httpRequest, PROVINCE_ID)),
+		PageSize:   search.BuildPageSize(0, 0),
+	}
 
-	cityResponses := controller.CityService.FindAllWithoutPagination(httpRequest.Context(), searchBy)
+	cityResponses := controller.CityService.FindAllWithoutPagination(httpRequest.Context(), citySearch)
 	helper.WriteSuccessResponse(writer, cityResponses)
 }
 

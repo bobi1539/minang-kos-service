@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/repository"
 
 	"github.com/go-playground/validator/v10"
@@ -84,22 +85,21 @@ func (service *DistrictServiceImpl) FindById(ctx context.Context, id int64) any 
 	return helper.ToDistrictResponse(district)
 }
 
-func (service *DistrictServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *DistrictServiceImpl) FindAllWithPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	districts := service.DistrictRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.District)
-	totalItem := service.DistrictRepository.FindTotalItem(ctx, tx, searchBy)
-	return helper.ToResponsePagination(
-		searchBy["page"].(int), searchBy["size"].(int), totalItem, helper.ToDistrictResponses(districts),
-	)
+	districtSearch := searchBy.(search.DistrictSearch)
+	districts := service.DistrictRepository.FindAll(ctx, tx, districtSearch).([]domain.District)
+	totalItem := service.DistrictRepository.FindTotalItem(ctx, tx, districtSearch)
+	return helper.ToResponsePagination(districtSearch.Page, districtSearch.Size, totalItem, helper.ToDistrictResponses(districts))
 }
 
-func (service *DistrictServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
+func (service *DistrictServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy any) any {
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	districts := service.DistrictRepository.FindAllWithoutPagination(ctx, tx, searchBy).([]domain.District)
+	districts := service.DistrictRepository.FindAll(ctx, tx, searchBy).([]domain.District)
 	return helper.ToDistrictResponses(districts)
 }
 
