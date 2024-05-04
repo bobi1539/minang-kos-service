@@ -293,19 +293,6 @@ func ToKosBedroomResponse(
 	}
 }
 
-func ToKosBedroomResponses(kosBedrooms []domain.KosBedroom, facilities []domain.Facility) []response.KosBedroomResponse {
-	if kosBedrooms == nil {
-		return make([]response.KosBedroomResponse, 0)
-	}
-
-	var kosBedroomResponses []response.KosBedroomResponse
-	for _, kosBedroom := range kosBedrooms {
-		kosBedroomResponse := ToKosBedroomResponse(kosBedroom, nil, facilities)
-		kosBedroomResponses = append(kosBedroomResponses, kosBedroomResponse)
-	}
-	return kosBedroomResponses
-}
-
 func ToFacilityTypeWithFacilityResponse(facilityType domain.FacilityType, facilities []domain.Facility) response.FacilityTypeWithFacilityResponse {
 	var facilityResponses []response.FacilityResponse
 

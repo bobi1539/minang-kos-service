@@ -10,6 +10,8 @@ import (
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
+	"minang-kos-service/model/web/response"
+	"minang-kos-service/model/web/search"
 	"minang-kos-service/repository"
 	"os"
 	"strings"
@@ -100,7 +102,7 @@ func (service *KosBedroomServiceImpl) FindById(ctx context.Context, id int64) an
 	defer helper.CommitOrRollback(tx)
 
 	kosBedroom := service.findKosBedroomById(ctx, tx, id)
-	facilities, facilityTypes := service.findKosFacilities(ctx, tx, id)
+	facilities, facilityTypes := service.findKosFacilities(ctx, tx, id, search.BuildPageSize(0, 0))
 	return helper.ToKosBedroomResponse(kosBedroom, facilityTypes, facilities)
 }
 
@@ -108,14 +110,26 @@ func (service *KosBedroomServiceImpl) FindAllWithPagination(ctx context.Context,
 	tx := service.beginTransaction()
 	defer helper.CommitOrRollback(tx)
 
-	kosBedrooms := service.KosBedroomRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.KosBedroom)
+	kosBedroomSearch := search.KosBedroomSearch{
+		Address:  searchBy["address"].(string),
+		PageSize: search.BuildPageSize(searchBy["page"].(int), searchBy["size"].(int)),
+	}
+
+	kosBedrooms := service.KosBedroomRepository.FindAll(ctx, tx, kosBedroomSearch).([]domain.KosBedroom)
 	totalItem := service.KosBedroomRepository.FindTotalItem(ctx, tx, searchBy)
+
+	var responses []response.KosBedroomResponse
+	for _, kosBedroom := range kosBedrooms {
+		facilities, facilityType := service.findKosFacilities(ctx, tx, kosBedroom.Id, search.BuildPageSize(1, 5))
+		response := helper.ToKosBedroomResponse(kosBedroom, facilityType, facilities)
+		responses = append(responses, response)
+	}
 
 	return helper.ToResponsePagination(
 		searchBy["page"].(int),
 		searchBy["size"].(int),
 		totalItem,
-		helper.ToKosBedroomResponses(kosBedrooms, nil),
+		responses,
 	)
 }
 
@@ -160,16 +174,18 @@ func (service *KosBedroomServiceImpl) findKosBedroomById(ctx context.Context, tx
 }
 
 func (service *KosBedroomServiceImpl) findKosFacilities(
-	ctx context.Context, tx *sql.Tx, kosBedroomId int64,
+	ctx context.Context, tx *sql.Tx, kosBedroomId int64, pageSize search.PageSize,
 ) ([]domain.Facility, []domain.FacilityType) {
-	searchBy := make(map[string]any)
-	searchBy["kosBedroomId"] = kosBedroomId
-	searchBy["facilityId"] = int64(0)
+	searchBy := search.KosFacilitySearch{
+		KosBedroomId: kosBedroomId,
+		FacilityId:   0,
+		PageSize:     pageSize,
+	}
 
 	var facilities []domain.Facility
 	var facilityTypes []domain.FacilityType
 
-	kosFacilities := service.KosFacilityRepository.FindAllWithoutPagination(ctx, tx, searchBy)
+	kosFacilities := service.KosFacilityRepository.FindAll(ctx, tx, searchBy)
 	for _, kosFacility := range kosFacilities {
 		facilities = append(facilities, kosFacility.Facility)
 

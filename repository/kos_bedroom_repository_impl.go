@@ -7,6 +7,7 @@ import (
 	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type KosBedroomRepositoryImpl struct {
@@ -48,6 +49,21 @@ func (repository *KosBedroomRepositoryImpl) FindById(ctx context.Context, tx *sq
 		return kosBedroom, nil
 	}
 	return nil, errors.New(constant.DATA_NOT_FOUND)
+}
+
+func (repository *KosBedroomRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy any) any {
+	search := searchBy.(search.KosBedroomSearch)
+
+	offset := helper.GetSqlOffset(search.Page, search.Size)
+
+	sqlSearch, args := sqlSearchKosBedroomBy(search.Address)
+	sqlQuery := sqlSelectKosBedroomSimple() + sqlSearch + " ORDER BY mkb.id ASC LIMIT ? OFFSET ?"
+	args = append(args, search.Size, offset)
+
+	rows := FetchRows(ctx, tx, sqlQuery, args)
+	defer rows.Close()
+
+	return getKosBedrooms(rows, scanSimpleKosBedroom)
 }
 
 func (repository *KosBedroomRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {

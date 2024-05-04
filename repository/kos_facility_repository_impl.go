@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
+	"minang-kos-service/model/web/search"
 )
 
 type KosFacilityRepositoryImpl struct {
@@ -25,12 +26,15 @@ func (repository *KosFacilityRepositoryImpl) Save(ctx context.Context, tx *sql.T
 	return kosFacility
 }
 
-func (repository *KosFacilityRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) []domain.KosFacility {
-	kosBedroomId := searchBy["kosBedroomId"].(int64)
-	facilityId := searchBy["facilityId"].(int64)
-
-	sqlSearch, args := sqlSearchByKosFacility(kosBedroomId, facilityId)
+func (repository *KosFacilityRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, searchBy search.KosFacilitySearch) []domain.KosFacility {
+	sqlSearch, args := sqlSearchKosFacilityBy(searchBy.KosBedroomId, searchBy.FacilityId)
 	sqlQuery := sqlSelectKosFacility() + sqlSearch
+
+	if searchBy.Page > 0 {
+		offset := helper.GetSqlOffset(searchBy.Page, searchBy.Size)
+		sqlQuery += " LIMIT ? OFFSET ?"
+		args = append(args, searchBy.Size, offset)
+	}
 
 	rows := FetchRows(ctx, tx, sqlQuery, args)
 	defer rows.Close()
@@ -58,7 +62,7 @@ func sqlSelectKosFacility() string {
 		" WHERE 1 = 1"
 }
 
-func sqlSearchByKosFacility(kosBedroomId int64, facilityId int64) (string, []any) {
+func sqlSearchKosFacilityBy(kosBedroomId int64, facilityId int64) (string, []any) {
 	var args []any
 	sqlQuery := ""
 
@@ -71,6 +75,8 @@ func sqlSearchByKosFacility(kosBedroomId int64, facilityId int64) (string, []any
 		sqlQuery += " AND mkf.facility_id = ?"
 		args = append(args, facilityId)
 	}
+
+	sqlQuery += " ORDER BY mkf.id ASC"
 	return sqlQuery, args
 }
 
