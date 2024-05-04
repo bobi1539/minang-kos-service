@@ -58,6 +58,7 @@ func sqlSaveKosBedroom() string {
 		" unit_length," +
 		" is_include_electricity," +
 		" price," +
+		" street," +
 		" images," +
 		" kos_type_id," +
 		" village_id," +
@@ -68,7 +69,7 @@ func sqlSaveKosBedroom() string {
 		" updated_at," +
 		" updated_by," +
 		" updated_by_name," +
-		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 }
 
 func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
@@ -79,6 +80,7 @@ func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
 	args = append(args, kosBedroom.UnitLength)
 	args = append(args, kosBedroom.IsIncludeElectricity)
 	args = append(args, kosBedroom.Price)
+	args = append(args, kosBedroom.Street)
 	args = append(args, kosBedroom.Images)
 	args = append(args, kosBedroom.KosType.Id)
 	args = append(args, kosBedroom.Village.Id)

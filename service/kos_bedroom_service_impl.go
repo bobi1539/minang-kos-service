@@ -3,12 +3,15 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"minang-kos-service/constant"
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/request"
 	"minang-kos-service/repository"
+	"os"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -66,12 +69,15 @@ func (service *KosBedroomServiceImpl) Create(ctx context.Context, webRequest any
 		UnitLength:           constant.METER,
 		IsIncludeElectricity: kosBedroomRequest.IsIncludeElectricity,
 		Price:                kosBedroomRequest.Price,
-		Images:               "images",
+		Street:               kosBedroomRequest.Street,
 		KosType:              kosType,
 		Village:              village,
 		User:                 user,
 		BaseDomain:           baseDomain,
 	}
+
+	imagesFilename := service.saveImages(kosBedroomRequest.Images)
+	kosBedroom.Images = imagesFilename
 
 	kosBedroom = service.KosBedroomRepository.Save(ctx, tx, kosBedroom).(domain.KosBedroom)
 	facilities, facilityTypes := service.createKosFacility(ctx, tx, kosBedroom, kosBedroomRequest.FacilityIds)
@@ -157,4 +163,43 @@ func (service *KosBedroomServiceImpl) isFacilityTypeExist(facilityType domain.Fa
 		}
 	}
 	return false
+}
+
+func (service *KosBedroomServiceImpl) saveImages(images []string) string {
+	var imagesFilename string
+	for i, image := range images {
+		arr := strings.Split(image, ";")
+
+		filename := arr[0]
+		service.validateImageExt(filename)
+
+		imgByte := helper.DecodeBase64(arr[1])
+		service.validateImageSize(len(imgByte))
+
+		filepath := os.Getenv("PATH_FILE_IMAGE_BEDROOM")
+		filename = helper.GenerateImageFilename()
+		fullpath := filepath + filename
+		helper.WriteFile(fullpath, imgByte)
+
+		imagesFilename += filename
+		if i != (len(images) - 1) {
+			imagesFilename += constant.COMMA
+		}
+	}
+	return imagesFilename
+}
+
+func (service *KosBedroomServiceImpl) validateImageExt(filename string) {
+	ext := helper.GetFileExtension(filename)
+	allow := helper.AllowedExtension()
+	isExtAllowed := allow[ext]
+	if !isExtAllowed {
+		exception.PanicErrorBadRequest(errors.New(constant.FILE_NOT_IMAGE))
+	}
+}
+
+func (service *KosBedroomServiceImpl) validateImageSize(imgSize int) {
+	if imgSize > constant.MAX_IMAGE_SIZE {
+		exception.PanicErrorBadRequest(errors.New(constant.MAX_FILE_SIZE))
+	}
 }

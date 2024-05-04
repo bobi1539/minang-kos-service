@@ -9,3 +9,5 @@ const WRONG_EMAIL_OR_PASSWORD = "wrong email or password | email atau password s
 const PROVINCE_ID_REQUIRED = "province id is required | province id tidak boleh kosong"
 const CITY_ID_REQUIRED = "city id is required | city id tidak boleh kosong"
 const DISTRICT_ID_REQUIRED = "district id is required | district id tidak boleh kosong"
+const FILE_NOT_IMAGE = "file not image | file not image"
+const MAX_FILE_SIZE = "max file size is 512 kb | max file size adalah 512 kb"

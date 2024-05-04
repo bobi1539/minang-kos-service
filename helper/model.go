@@ -6,6 +6,7 @@ import (
 	"minang-kos-service/model/domain"
 	"minang-kos-service/model/web/dto"
 	"minang-kos-service/model/web/response"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -280,7 +281,7 @@ func ToKosBedroomResponse(
 		UnitLength:           kosBedroom.UnitLength,
 		IsIncludeElectricity: kosBedroom.IsIncludeElectricity,
 		Price:                kosBedroom.Price,
-		Images:               nil,
+		Images:               strings.Split(kosBedroom.Images, constant.COMMA),
 		KosType:              ToKosTypeResponse(kosBedroom.KosType),
 		Village:              ToVillageResponse(kosBedroom.Village),
 		User:                 ToUserResponse(kosBedroom.User),

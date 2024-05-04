@@ -12,3 +12,5 @@ const SIGNING_METHOD_INVALID = "signing method invalid"
 const USER_INFO = "userInfo"
 const X_API_KEY = "X-API-Key"
 const METER = "meter"
+const MAX_IMAGE_SIZE = 512000 // 512 Kb
+const COMMA = ","

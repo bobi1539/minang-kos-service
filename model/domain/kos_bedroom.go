@@ -8,6 +8,7 @@ type KosBedroom struct {
 	UnitLength           string
 	IsIncludeElectricity bool
 	Price                float32
+	Street               string
 	Images               string
 	KosType              KosType
 	Village              Village
