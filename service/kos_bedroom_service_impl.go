@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"minang-kos-service/constant"
 	"minang-kos-service/exception"
 	"minang-kos-service/helper"
@@ -62,6 +63,7 @@ func (service *KosBedroomServiceImpl) Create(ctx context.Context, webRequest any
 	baseDomain := helper.BuildBaseDomain(ctx)
 	user := service.findUserById(ctx, tx, baseDomain.CreatedBy)
 
+	completeAddress := getCompleteAddress(kosBedroomRequest.Street, village)
 	kosBedroom := domain.KosBedroom{
 		Title:                kosBedroomRequest.Title,
 		RoomLength:           kosBedroomRequest.RoomLength,
@@ -70,6 +72,7 @@ func (service *KosBedroomServiceImpl) Create(ctx context.Context, webRequest any
 		IsIncludeElectricity: kosBedroomRequest.IsIncludeElectricity,
 		Price:                kosBedroomRequest.Price,
 		Street:               kosBedroomRequest.Street,
+		CompleteAddress:      completeAddress,
 		KosType:              kosType,
 		Village:              village,
 		User:                 user,
@@ -102,7 +105,18 @@ func (service *KosBedroomServiceImpl) FindById(ctx context.Context, id int64) an
 }
 
 func (service *KosBedroomServiceImpl) FindAllWithPagination(ctx context.Context, searchBy map[string]any) any {
-	panic("imp")
+	tx := service.beginTransaction()
+	defer helper.CommitOrRollback(tx)
+
+	kosBedrooms := service.KosBedroomRepository.FindAllWithPagination(ctx, tx, searchBy).([]domain.KosBedroom)
+	totalItem := service.KosBedroomRepository.FindTotalItem(ctx, tx, searchBy)
+
+	return helper.ToResponsePagination(
+		searchBy["page"].(int),
+		searchBy["size"].(int),
+		totalItem,
+		helper.ToKosBedroomResponses(kosBedrooms, nil),
+	)
 }
 
 func (service *KosBedroomServiceImpl) FindAllWithoutPagination(ctx context.Context, searchBy map[string]any) any {
@@ -235,4 +249,16 @@ func (service *KosBedroomServiceImpl) validateImageSize(imgSize int) {
 	if imgSize > constant.MAX_IMAGE_SIZE {
 		exception.PanicErrorBadRequest(errors.New(constant.MAX_FILE_SIZE))
 	}
+}
+
+func getCompleteAddress(street string, village domain.Village) string {
+	return fmt.Sprintf(
+		"%s,%s,%s,%s,%s,%s",
+		street,
+		village.Name,
+		village.District.Name,
+		village.District.City.Name,
+		village.District.City.Province.Name,
+		village.District.City.Province.Country.Name,
+	)
 }

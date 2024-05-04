@@ -8,6 +8,8 @@ type KosBedroomResponse struct {
 	UnitLength           string                             `json:"unitLength"`
 	IsIncludeElectricity bool                               `json:"isIncludeElectricity"`
 	Price                float32                            `json:"price"`
+	Street               string                             `json:"street"`
+	CompleteAddress      string                             `json:"completeAddress"`
 	Images               []string                           `json:"images"`
 	KosType              KosTypeResponse                    `json:"kosType"`
 	Village              VillageResponse                    `json:"village"`

@@ -51,7 +51,20 @@ func (repository *KosBedroomRepositoryImpl) FindById(ctx context.Context, tx *sq
 }
 
 func (repository *KosBedroomRepositoryImpl) FindAllWithPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
-	panic("imp")
+	address := searchBy["address"].(string)
+	page := searchBy["page"].(int)
+	size := searchBy["size"].(int)
+
+	page = helper.GetSqlOffset(page, size)
+
+	sqlSearch, args := sqlSearchKosBedroomBy(address)
+	sqlQuery := sqlSelectKosBedroomSimple() + sqlSearch + " ORDER BY mkb.id ASC LIMIT ? OFFSET ?"
+	args = append(args, size, page)
+
+	rows := FetchRows(ctx, tx, sqlQuery, args)
+	defer rows.Close()
+
+	return getKosBedrooms(rows, scanSimpleKosBedroom)
 }
 
 func (repository *KosBedroomRepositoryImpl) FindAllWithoutPagination(ctx context.Context, tx *sql.Tx, searchBy map[string]any) any {
@@ -59,7 +72,15 @@ func (repository *KosBedroomRepositoryImpl) FindAllWithoutPagination(ctx context
 }
 
 func (repository *KosBedroomRepositoryImpl) FindTotalItem(ctx context.Context, tx *sql.Tx, searchBy map[string]any) int {
-	panic("imp")
+	address := searchBy["address"].(string)
+
+	sqlSearch, args := sqlSearchKosBedroomBy(address)
+	sqlQuery := sqlFindTotalKosBedroom() + sqlSearch
+
+	rows := FetchRows(ctx, tx, sqlQuery, args)
+	defer rows.Close()
+
+	return ScanTotalItem(rows)
 }
 
 func sqlSaveKosBedroom() string {
@@ -71,6 +92,7 @@ func sqlSaveKosBedroom() string {
 		" is_include_electricity," +
 		" price," +
 		" street," +
+		" complete_address," +
 		" images," +
 		" kos_type_id," +
 		" village_id," +
@@ -81,7 +103,7 @@ func sqlSaveKosBedroom() string {
 		" updated_at," +
 		" updated_by," +
 		" updated_by_name," +
-		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+		" is_deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 }
 
 func sqlSelectKosBedroom() string {
@@ -93,6 +115,7 @@ func sqlSelectKosBedroom() string {
 		" mkb.is_include_electricity," +
 		" mkb.price," +
 		" mkb.street," +
+		" mkb.complete_address," +
 		" mkb.images," +
 		" mkb.kos_type_id," +
 		" mkb.village_id," +
@@ -124,6 +147,35 @@ func sqlSelectKosBedroom() string {
 		" WHERE mkb.is_deleted = false"
 }
 
+func sqlSelectKosBedroomSimple() string {
+	return "SELECT mkb.id," +
+		" mkb.title," +
+		" mkb.price," +
+		" mkb.complete_address," +
+		" mkb.images," +
+		" mkb.kos_type_id," +
+		" mkt.name" +
+		" FROM m_kos_bedroom mkb" +
+		" LEFT JOIN m_kos_type mkt ON mkb.kos_type_id = mkt.id" +
+		" WHERE mkb.is_deleted = false"
+}
+
+func sqlFindTotalKosBedroom() string {
+	return "SELECT COUNT(1) AS totalItem FROM m_kos_bedroom mkb WHERE mkb.is_deleted = false"
+}
+
+func sqlSearchKosBedroomBy(address string) (string, []any) {
+	var args []any
+	sqlQuery := ""
+
+	if len(address) != 0 {
+		sqlQuery += " AND LOWER(mkb.complete_address) LIKE ?"
+		args = append(args, helper.StringQueryLike(address))
+	}
+
+	return sqlQuery, args
+}
+
 func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
 	var args []any
 	args = append(args, kosBedroom.Title)
@@ -133,6 +185,7 @@ func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
 	args = append(args, kosBedroom.IsIncludeElectricity)
 	args = append(args, kosBedroom.Price)
 	args = append(args, kosBedroom.Street)
+	args = append(args, kosBedroom.CompleteAddress)
 	args = append(args, kosBedroom.Images)
 	args = append(args, kosBedroom.KosType.Id)
 	args = append(args, kosBedroom.Village.Id)
@@ -147,6 +200,16 @@ func argsSaveKosBedroom(kosBedroom domain.KosBedroom) []any {
 	return args
 }
 
+func getKosBedrooms(rows *sql.Rows, scanFunc func(rows *sql.Rows, kosBedroom *domain.KosBedroom)) []domain.KosBedroom {
+	var kosBedrooms []domain.KosBedroom
+	for rows.Next() {
+		kosBedroom := domain.KosBedroom{}
+		scanFunc(rows, &kosBedroom)
+		kosBedrooms = append(kosBedrooms, kosBedroom)
+	}
+	return kosBedrooms
+}
+
 func scanKosBedroom(rows *sql.Rows, kosBedroom *domain.KosBedroom) {
 	err := rows.Scan(
 		&kosBedroom.Id,
@@ -157,6 +220,7 @@ func scanKosBedroom(rows *sql.Rows, kosBedroom *domain.KosBedroom) {
 		&kosBedroom.IsIncludeElectricity,
 		&kosBedroom.Price,
 		&kosBedroom.Street,
+		&kosBedroom.CompleteAddress,
 		&kosBedroom.Images,
 		&kosBedroom.KosType.Id,
 		&kosBedroom.Village.Id,
@@ -177,6 +241,19 @@ func scanKosBedroom(rows *sql.Rows, kosBedroom *domain.KosBedroom) {
 		&kosBedroom.Village.District.City.Name,
 		&kosBedroom.Village.District.City.Province.Name,
 		&kosBedroom.Village.District.City.Province.Country.Name,
+	)
+	helper.PanicIfError(err)
+}
+
+func scanSimpleKosBedroom(rows *sql.Rows, kosBedroom *domain.KosBedroom) {
+	err := rows.Scan(
+		&kosBedroom.Id,
+		&kosBedroom.Title,
+		&kosBedroom.Price,
+		&kosBedroom.CompleteAddress,
+		&kosBedroom.Images,
+		&kosBedroom.KosType.Id,
+		&kosBedroom.KosType.Name,
 	)
 	helper.PanicIfError(err)
 }

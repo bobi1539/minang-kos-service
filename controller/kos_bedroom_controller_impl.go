@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"minang-kos-service/constant"
 	"minang-kos-service/helper"
 	"minang-kos-service/model/web/request"
 	"minang-kos-service/service"
@@ -10,6 +11,7 @@ import (
 )
 
 const KOS_BEDROOM_ID = "kosBedroomId"
+const KOS_BEDROOM_ADDRESS = "address"
 
 type KosBedroomControllerImpl struct {
 	KosBedroomService service.KosBedroomService
@@ -44,7 +46,13 @@ func (controller *KosBedroomControllerImpl) FindById(writer http.ResponseWriter,
 }
 
 func (controller *KosBedroomControllerImpl) FindAllWithPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {
-	panic("imp")
+	searchBy := make(map[string]any)
+	searchBy["address"] = helper.GetQueryParam(httpRequest, KOS_BEDROOM_ADDRESS)
+	searchBy["page"] = helper.GetPageOrSize(httpRequest, constant.PAGE)
+	searchBy["size"] = helper.GetPageOrSize(httpRequest, constant.SIZE)
+
+	kosBedroomResponses := controller.KosBedroomService.FindAllWithPagination(httpRequest.Context(), searchBy)
+	helper.WriteSuccessResponse(writer, kosBedroomResponses)
 }
 
 func (controller *KosBedroomControllerImpl) FindAllWithoutPagination(writer http.ResponseWriter, httpRequest *http.Request, params httprouter.Params) {

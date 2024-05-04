@@ -181,6 +181,7 @@ CREATE TABLE `m_kos_bedroom` (
   `is_include_electricity` tinyint(1) NULL DEFAULT NULL,
   `price` float NULL DEFAULT NULL,
   `street` varchar(255) NOT NULL,
+  `complete_address` varchar(255) NOT NULL,
   `images` varchar(1000) NOT NULL,
   `kos_type_id` bigint(20) unsigned NOT NULL,
   `village_id` bigint(20) unsigned NOT NULL,

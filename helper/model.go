@@ -282,6 +282,8 @@ func ToKosBedroomResponse(
 		UnitLength:           kosBedroom.UnitLength,
 		IsIncludeElectricity: kosBedroom.IsIncludeElectricity,
 		Price:                kosBedroom.Price,
+		Street:               kosBedroom.Street,
+		CompleteAddress:      kosBedroom.CompleteAddress,
 		Images:               strings.Split(kosBedroom.Images, constant.COMMA),
 		KosType:              ToKosTypeResponse(kosBedroom.KosType),
 		Village:              ToVillageResponse(kosBedroom.Village),
@@ -289,6 +291,19 @@ func ToKosBedroomResponse(
 		FacilityTypes:        ToFacilityTypeWithFacilityResponses(facilityTypes, facilities),
 		BaseDomainResponse:   ToBaseDomainResponse(kosBedroom.BaseDomain),
 	}
+}
+
+func ToKosBedroomResponses(kosBedrooms []domain.KosBedroom, facilities []domain.Facility) []response.KosBedroomResponse {
+	if kosBedrooms == nil {
+		return make([]response.KosBedroomResponse, 0)
+	}
+
+	var kosBedroomResponses []response.KosBedroomResponse
+	for _, kosBedroom := range kosBedrooms {
+		kosBedroomResponse := ToKosBedroomResponse(kosBedroom, nil, facilities)
+		kosBedroomResponses = append(kosBedroomResponses, kosBedroomResponse)
+	}
+	return kosBedroomResponses
 }
 
 func ToFacilityTypeWithFacilityResponse(facilityType domain.FacilityType, facilities []domain.Facility) response.FacilityTypeWithFacilityResponse {
